@@ -3,14 +3,18 @@ package frontend;
 import backend.Inventory;
 import backend.InventoryItem;
 import backend.Product;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import backend.ProductManager;
+
+import javafx.geometry.Pos; // row contents alignment in inventory table
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 
 /*
  * v e r y  rough na hahahaha ui
@@ -20,159 +24,238 @@ public class InventoryManagementView extends BorderPane
 {
   // inventory stuff
   private Inventory inventory;
-  private TableView<InventoryItem> table;
-  private ObservableList<InventoryItem> tableData;
+  // private TableView<InventoryItem> table;
+  // private ObservableList<InventoryItem> tableData;
+  private Map<String, String> availability = new HashMap<>(); // AVAILABILITY NOT IN PRODUCT
 
+  // PRODUCT MANAGER
+  private ProductManager productManager;
+  private Product foundProduct; // adding products to inventory from product manager cataglog
+
+  // inventory table in this vbox
+  private VBox rowsBox;
+  private List<InventoryItem> checkedItems = new ArrayList<>();
+ 
   // inputs and labels
-  private TextField idField;
-  private TextField nameField;
-  private TextField descField;
-  private TextField priceField;
-  private TextField quantityField;
+  private TextField searchField;
+  private Button addOrDeleteBtn;
 
   // constructor
-  public InventoryManagementView(Inventory inventory) 
-  {
+  public InventoryManagementView(Inventory inventory, ProductManager productManager) {
     this.inventory = inventory;
-    this.tableData = FXCollections.observableArrayList(inventory.getItems());
-
+    this.productManager = productManager;
     setPadding(new Insets(15));
-    setCenter(createTableSection());
-    setRight(createFormSection());
+    setCenter(createMainSection());   // no setLeft(createSideBar()), MainView owns the sidebar
+    refreshTable();
   }
 
-  private TableView<InventoryItem> createTableSection() 
-  {
-    table = new TableView<>();
-    table.setItems(tableData);
+  private VBox createMainSection(){
 
-    // formatting stuff
-    TableColumn<InventoryItem, String> idCol = new TableColumn<>("Product ID");
-    idCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduct().getId()));
+    // buttons IN THE HEADER
+    searchField = new TextField();
+    searchField.setPromptText("Search by name or id..");
+    searchField.textProperty().addListener((obs, oldText, newText) -> refreshTable());
 
-    TableColumn<InventoryItem, String> nameCol = new TableColumn<>("Name");
-    nameCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduct().getName()));
+    Label title = new Label("Inventory");
+    title.setStyle("-fx-font-size: 20px;");
 
-    TableColumn<InventoryItem, String> descCol = new TableColumn<>("Description");
-    descCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduct().getDescription()));
 
-    TableColumn<InventoryItem, Double> priceCol = new TableColumn<>("Price (₱)");
-    priceCol.setCellValueFactory(cell -> new SimpleDoubleProperty(cell.getValue().getProduct().getPrice()).asObject());
+    addOrDeleteBtn = new Button("Add +");
+    addOrDeleteBtn.setOnAction(e -> handleHeaderButton());
 
-    TableColumn<InventoryItem, Integer> qtyCol = new TableColumn<>("Stock Quantity");
-    qtyCol.setCellValueFactory(cell -> new SimpleIntegerProperty(cell.getValue().getQuantity()).asObject());
+    BorderPane header = new BorderPane();
+    header.setLeft(searchField);
+    header.setCenter(title);
+    header.setRight(new HBox(20, addOrDeleteBtn));
 
-    table.getColumns().addAll(idCol, nameCol, descCol, priceCol, qtyCol);
-    table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    rowsBox = new VBox(5);
 
-    table.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
-      if (newSel != null) 
-      {
-        idField.setText(newSel.getProduct().getId());
-        nameField.setText(newSel.getProduct().getName());
-        descField.setText(newSel.getProduct().getDescription());
-        priceField.setText(String.valueOf(newSel.getProduct().getPrice()));
-        quantityField.setText(String.valueOf(newSel.getQuantity()));
+    // with fancy scroll feature
+    ScrollPane scroll = new ScrollPane(rowsBox);
+    scroll.setFitToWidth(true);
+    VBox.setVgrow(scroll, Priority.ALWAYS);
+
+    return new VBox(10, header, scroll);
+
+  }
+
+  // CREATE THE ROWS IN THE MAIN AREA WITH THE INVENTORY ROWS
+
+  private HBox createRow(InventoryItem item){
+    Product p = item.getProduct();
+
+    CheckBox check = new CheckBox();
+    check.setOnAction(e -> {
+      if (check.isSelected())
+        checkedItems.add(item);
+      else
+        checkedItems.remove(item);
+      updateHeaderButton();
+    });
+
+    Label name = new Label(p.getName());
+    name.setStyle("-fx-font-weight: bold;"); // BOLDEN IT
+    Label info = new Label("Php " + p.getPrice() + " | Stock: " + item.getQuantity());
+    Label desc = new Label(p.getDescription());     
+
+    Button editBtn = new Button("Edit");
+    editBtn.setOnAction(e -> showEditDialog(item));
+
+    //MODIFY STOCK AS MANAGER feature
+    Button minusStock = new Button("-");
+    minusStock.setOnAction(e -> handleChangeStock(item, -1));
+    Button addStock = new Button("+");
+    addStock.setOnAction(e -> handleChangeStock(item, 1));
+    Label qty = new Label(String.valueOf(item.getQuantity())); // display qty as well
+
+    Region spacer = new Region();                   // pushes Edit and - + to the right
+    HBox.setHgrow(spacer, Priority.ALWAYS);
+
+    HBox row = new HBox(10, check, new VBox(name, info), desc, spacer, editBtn, minusStock, qty, addStock);
+    row.setAlignment(Pos.CENTER_LEFT);
+    return row;
+  }
+
+  private void handleHeaderButton(){
+    if (checkedItems.isEmpty())
+      showAddDialog();
+    else
+      handleDeleteProduct();
+  }
+
+  private void updateHeaderButton() {
+    addOrDeleteBtn.setText(checkedItems.isEmpty() ? "Add +" : "Delete");
+  }
+
+  private void handleChangeStock(InventoryItem item, int change){
+    if (item.getQuantity() + change < 0)
+      return;
+
+    item.setQuantity(item.getQuantity() + change);
+    refreshTable();
+  }
+
+
+private void showAddDialog(){
+    foundProduct = null;
+
+    TextField nameField = new TextField();
+    nameField.setPromptText("e.g., Seeds");
+    Button btnSearch = new Button("Search");
+
+    // READ ONLY PRODUCT DETAILS DEFAULT // updates when a product to be added is found!
+    Label nameLabel = new Label("Product Name: ...");
+    Label idLabel = new Label("Product ID: ...");
+    Label descLabel = new Label("Description: ...");
+    Label priceLabel = new Label("Standard Price: ...");
+
+    // search product manager by id , only products available in product catalog can be added to inventory
+    btnSearch.setOnAction(e -> {
+      foundProduct = productManager.getProductByName(nameField.getText().trim());
+
+      if (foundProduct == null) {
+        nameLabel.setText("Product Name: ...");
+        idLabel.setText("Product ID: ...");
+        descLabel.setText("Description: ...");
+        priceLabel.setText("Standard Price: ...");
+        showAlert(Alert.AlertType.ERROR, "Not Found", "No such product available in product catalog!");
+      } 
+      else {
+        nameLabel.setText("Product Name: " + foundProduct.getName());
+        idLabel.setText("Product ID: " + foundProduct.getId());
+        descLabel.setText("Description: " + foundProduct.getDescription());
+        priceLabel.setText("Standard Price: " + foundProduct.getPrice());
       }
     });
 
-    return table;
-  }
+    TextField quantityField = new TextField();
+    VBox avaiBox = createAvaiBox("Available");
 
-  private VBox createFormSection() 
-  {
-    // more formatting stuff
-    VBox form = new VBox(10);
-    form.setPadding(new Insets(0, 0, 0, 15));
-    form.setPrefWidth(300);
+    VBox left = new VBox(5,new Label("Product Name:"), new HBox(5, nameField, btnSearch), nameLabel, idLabel, descLabel, priceLabel, new Label("Product Quantity:"), quantityField);
+    HBox content = new HBox(20, left, avaiBox);
 
-    Label titleLabel = new Label("Product & Inventory Control");
-    titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
-    idField = new TextField();
-    idField.setPromptText("e.g., PROD-001");
+    if (!showDialog("Add Product to Inventory", content)){
+      return;
+    }
 
-    nameField = new TextField();
-    nameField.setPromptText("e.g., Organic Fertilizer");
-
-    descField = new TextField();
-    descField.setPromptText("e.g., 50kg bag nitrogen-rich");
-
-    priceField = new TextField();
-    priceField.setPromptText("e.g., 450.00");
-
-    quantityField = new TextField();
-    quantityField.setPromptText("e.g., 100");
-
-    Button btnAdd = new Button("Add New Product");
-    Button btnRestock = new Button("Restock Quantity");
-    Button btnUpdate = new Button("Update Product Info");
-    Button btnDelete = new Button("Remove Product");
-
-    btnAdd.setMaxWidth(Double.MAX_VALUE);
-    btnRestock.setMaxWidth(Double.MAX_VALUE);
-    btnUpdate.setMaxWidth(Double.MAX_VALUE);
-    btnDelete.setMaxWidth(Double.MAX_VALUE);
-
-    // Event Handlers
-    btnAdd.setOnAction(e -> handleAddProduct());
-    btnRestock.setOnAction(e -> handleRestockProduct());
-    btnUpdate.setOnAction(e -> handleUpdateProduct());
-    btnDelete.setOnAction(e -> handleDeleteProduct());
-
-    form.getChildren().addAll(
-      titleLabel,
-      new Label("Product ID:"), idField,
-      new Label("Product Name:"), nameField,
-      new Label("Description:"), descField,
-      new Label("Price:"), priceField,
-      new Label("Quantity / Stock:"), quantityField,
-      new Separator(),
-      btnAdd, btnRestock, btnUpdate, btnDelete
-    );
-
-    return form;
-  }
-
-  private void handleAddProduct() 
-  {
-    try 
-    {
-      String id = idField.getText().trim();
-      String name = nameField.getText().trim();
-      String desc = descField.getText().trim();
-      double price = Double.parseDouble(priceField.getText().trim());
-      int qty = Integer.parseInt(quantityField.getText().trim());
-
-      if (id.isEmpty() || name.isEmpty()) 
+    // no product was even found
+    if (foundProduct == null) {
+      showAlert(Alert.AlertType.ERROR, "Validation Error", "Search for a product ID first.");
+      return;
+    }
+    // avoid repeat by checking existing inventory items
+    for (InventoryItem item : inventory.getItems()) {
+      if (item.getProduct().getId().equals(foundProduct.getId())) 
       {
-        showAlert(Alert.AlertType.ERROR, "Validation Error", "ID and Name cannot be empty.");
+        showAlert(Alert.AlertType.ERROR, "Error", "That product is already in the inventory. Try Restocking?");
         return;
       }
+    }
 
-      Product product = new Product(id, name, desc, price);
-      inventory.addProduct(product, qty);
+    try {
+      int qty = Integer.parseInt(quantityField.getText().trim());
+      inventory.addProduct(foundProduct, qty);   // CHANGE: uses the product from ProductManager
+      availability.put(foundProduct.getId(), getStatus(avaiBox));
       refreshTable();
-      clearForm();
-      showAlert(Alert.AlertType.INFORMATION, "Success", "Product added successfully!");
     } 
-    catch (NumberFormatException ex) 
-    {
-        showAlert(Alert.AlertType.ERROR, "Input Error", "Price and Quantity must be valid numbers.");
+    catch (NumberFormatException ex) {
+      showAlert(Alert.AlertType.ERROR, "Input Error", "Quantity must be a valid number.");
     }
   }
 
-  private void handleRestockProduct() 
-  {
-    try 
-    {
-      String id = idField.getText().trim();
-      int addQty = Integer.parseInt(quantityField.getText().trim());
+  // EDIT INVENTORY
+private void showEditDialog(InventoryItem item) {
+  Product p = item.getProduct();
 
-      if (inventory.restockProduct(id, addQty)) 
-      {
+  // LEFT SIDE CONTAINS UNEDITABLE PRODUCT DETAILS
+  Label stockLabel = new Label("Product Quantity: " + item.getQuantity());
+  VBox left = new VBox(5,
+    new Label("Product Name: " + p.getName()),
+    stockLabel,
+    new Label("Standard Price: " + p.getPrice()),
+    new Label("Product ID: " + p.getId()),
+    new Label("Description: " + p.getDescription())
+  );
+
+  // RIGHT SIDE CONTAINS EDITABLE INVENTORY PRODUCT DETAILS
+  TextField stockField = new TextField();
+  stockField.setPromptText("Qty to add");
+  Button btnRestock = new Button("Restock");
+  btnRestock.setOnAction(e -> handleRestockProduct(item, stockField, stockLabel));
+
+  TextField priceField = new TextField(String.valueOf(p.getPrice()));
+  VBox avaiBox = createAvaiBox(getAvailability(p.getId())); 
+
+  VBox right = new VBox(5,
+    new Label("Stock:"), new HBox(5, stockField, btnRestock),
+    new Label("Updated Price:"), priceField,
+    avaiBox                                                   
+  );
+
+  if (!showDialog("Edit Product Availability", new HBox(20, left, right))){
+    return;
+  }
+
+  try {
+    p.setPrice(Double.parseDouble(priceField.getText().trim()));
+    availability.put(p.getId(), getStatus(avaiBox));         
+    // hides upon refresh if status is NOT available
+    refreshTable();                                           
+  } 
+  catch (NumberFormatException ex) {
+    showAlert(Alert.AlertType.ERROR, "Input Error", "Price must be a valid number.");
+  }
+}
+
+  private void handleRestockProduct(InventoryItem item, TextField stockField, Label stockLabel){
+    try{
+      int addQty = Integer.parseInt(stockField.getText().trim());
+
+      if (inventory.restockProduct(item.getProduct().getId(), addQty)) {
+        stockLabel.setText("Product Quantity: " + item.getQuantity());
+        stockField.clear();
         refreshTable();
-        showAlert(Alert.AlertType.INFORMATION, "Success", "Restocked product successfully!");
       } 
       else 
         showAlert(Alert.AlertType.ERROR, "Error", "Product ID not found.");
@@ -183,65 +266,99 @@ public class InventoryManagementView extends BorderPane
     }
   }
 
-  private void handleUpdateProduct() 
-  {
-    InventoryItem selected = table.getSelectionModel().getSelectedItem();
-    if (selected == null) 
+  private void handleDeleteProduct() {
+    for (InventoryItem item : new ArrayList<>(checkedItems)){
+      inventory.removeProduct(item.getProduct().getId());
+      availability.remove(item.getProduct().getId());
+    }
+    refreshTable();
+  }
+
+  private boolean showDialog(String title, HBox content){ // HELPER FOR EXITING POPUPS (like when OK / CANCELLED is pressed)
+    content.setPadding(new Insets(10)); 
+    Dialog<ButtonType> dialog = new Dialog<>();
+    dialog.setTitle(title);
+    dialog.getDialogPane().setContent(content);
+    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+    return dialog.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+  }
+
+
+  private VBox createAvaiBox(String availability){
+    VBox box = new VBox(5);
+    for (String status : new String[] { "Available", "Unavailable", "Unlisted" }) 
     {
-      showAlert(Alert.AlertType.WARNING, "Selection Error", "Please select a product from the table to update.");
-      return;
+      CheckBox check = new CheckBox(status);
+      check.setSelected(status.equals(availability));
+
+      check.setOnAction(e -> {
+        if (check.isSelected()) 
+        {
+          // untick every other checkbox in the box
+          for (javafx.scene.Node node : box.getChildren())
+            if (node != check)
+              ((CheckBox) node).setSelected(false);
+        } 
+        else
+          check.setSelected(true);   // a product always needs a status
+      });
+
+      box.getChildren().add(check);
     }
 
-    try 
-    {
-      selected.getProduct().setName(nameField.getText().trim());
-      selected.getProduct().setDescription(descField.getText().trim());
-      selected.getProduct().setPrice(Double.parseDouble(priceField.getText().trim()));
-      selected.setQuantity(Integer.parseInt(quantityField.getText().trim()));
+    return box;
+  }
 
-      refreshTable();
-      showAlert(Alert.AlertType.INFORMATION, "Success", "Product information updated!");
-    } 
-    catch (NumberFormatException ex) 
+  private String getAvailability(String id){ // GETS AVAILABILITY BASED ON HASHMAP
+    return availability.getOrDefault(id, "Available");
+  }
+
+  private String getStatus(VBox avaiBox) { // SHOWS WHAT IS CURRENTLY BEING SELECTED IN CHECKBOX
+    for (javafx.scene.Node node : avaiBox.getChildren()) 
     {
-      showAlert(Alert.AlertType.ERROR, "Input Error", "Please ensure Price and Quantity are valid numbers.");
+      CheckBox check = (CheckBox) node;
+      if (check.isSelected()){
+        return check.getText();
+      }
+       
     }
+    return "Available";
   }
 
-  private void handleDeleteProduct() 
-  {
-    String id = idField.getText().trim();
+  // KEEPS IN MIND WHEN THE TABLE REFRESHES WHEN SOMETHING IS SEARCHED
+  // hides unavailable/unlisted products when updated that way
+  public void refreshTable() {
+    String search = searchField.getText().trim().toLowerCase();
+    List<InventoryItem> matches = new ArrayList<>();
 
-    if (inventory.removeProduct(id)) {
-      refreshTable();
-      clearForm();
-      showAlert(Alert.AlertType.INFORMATION, "Success", "Product removed from inventory.");
-    } 
-    else
-      showAlert(Alert.AlertType.ERROR, "Error", "Product ID not found.");
+    for (InventoryItem item : inventory.getItems()){
+      Product p = item.getProduct();
+
+      // only available allowed
+      if (!getAvailability(p.getId()).equals("Available"))
+        continue;
+      // matches the search
+      if (p.getName().toLowerCase().contains(search) || p.getId().toLowerCase().contains(search))
+        matches.add(item);
+    }
+
+    // one row per product
+    rowsBox.getChildren().clear();
+    checkedItems.clear();
+    for (InventoryItem item : matches) {
+      rowsBox.getChildren().add(createRow(item));
+      rowsBox.getChildren().add(new Separator());
+    }
+
+    updateHeaderButton();
   }
 
-  private void refreshTable() 
-  {
-    tableData.setAll(inventory.getItems());
-    table.refresh();
-  }
-
-  private void clearForm() 
-  {
-    idField.clear();
-    nameField.clear();
-    descField.clear();
-    priceField.clear();
-    quantityField.clear();
-  }
-
-  private void showAlert(Alert.AlertType type, String title, String content) 
-  {
+  private void showAlert(Alert.AlertType type, String title, String content){
     Alert alert = new Alert(type);
     alert.setTitle(title);
     alert.setHeaderText(null);
     alert.setContentText(content);
     alert.showAndWait();
   }
+
 }
