@@ -6,6 +6,13 @@ public class Manager extends User {
 	// can add products to inventory
 	// restock
 	// 
+
+	public Manager(String username, String password) { 
+		super(username, password); 
+	}
+  	@Override public boolean isManager() { 
+		return true; 
+	}
 	
 	private Inventory inventory;
 	

@@ -43,7 +43,15 @@ public class ProductManager {
 		}
 		return null;
 	}
-	
+
+	public boolean removeProduct(String id) {
+		if (id == null || !products.containsKey(id)) {
+			return false;
+		}
+		products.remove(id);
+		return true;
+	}
+
 	public boolean hasProductByName(String name) {
 		for (Product product : products.values()) {
 			
