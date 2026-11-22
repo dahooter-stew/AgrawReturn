@@ -12,8 +12,8 @@ public class InventoryItem implements Serializable
 
   public InventoryItem(Product product, int initialQuantity) 
   {
-	this.product = product;
-	this.quantity = initialQuantity;
+    this.product = product;
+    this.quantity = initialQuantity;
   }
 
   public Product getProduct() 
