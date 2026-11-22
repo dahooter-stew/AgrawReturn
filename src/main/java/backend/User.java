@@ -7,16 +7,27 @@ public abstract class User {
 	
 	// log in takes in username and password then checks
 	
-	boolean logIn(String username, String password) {
-		if (password.equals(this.password) && username.equals(this.username)) {
-			System.out.printf("Successfully logged in!");
-			return true;
-
-		} else {
-			System.out.printf("Could not log in. Try again!");
-			return false;
-		}
+	public boolean logIn(String username, String password) {
+		return password.equals(this.password) && username.equals(this.username);
 	}
-	
+	public abstract boolean isManager();
+
+	public User(String username, String password) {
+		this.username = username;
+		this.password = password;
+	}
+
+	public String getUsername() { 
+		return username; 
+	}
+	public String getPassword() {
+		 return password; 
+		}
+	public void setUsername(String username) {
+		 this.username = username; 
+	}
+	public void setPassword(String password) {
+		this.password = password; 
+	}
 
 }
