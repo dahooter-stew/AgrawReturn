@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 // inventory management system
 public class Inventory implements Serializable 
@@ -11,62 +13,90 @@ public class Inventory implements Serializable
   // for saving into files in the future
   private static final long serialVersionUID = 3L;
 
-  private List<InventoryItem> items;
+  private Map<Product, Integer> items;
+  private ProductManager productManager;
 
   public Inventory() 
   {
-    this.items = new ArrayList<>();
+    this.items = new HashMap<>();
   }
 
-  public List<InventoryItem> getItems() 
+  public HashMap<Product, Integer> getItems() 
   {
-    return items;
+    return new HashMap<>(items);
   }
 
-  public void addProduct(Product product, int initialQuantity) 
+  public void addProductById(String id, int initialQuantity)
   {
-    Optional<InventoryItem> existingItem = findItemById(product.getId());
+    Product product = productManager.getProductById(id);
 
-    if (existingItem.isPresent())
-        existingItem.get().addStock(initialQuantity);
-    else 
-      items.add(new InventoryItem(product, initialQuantity));
+    if (product == null && items.containsKey(product))
+      return;
+
+    items.put(product, initialQuantity);
   }
 
-  public boolean removeProduct(String productId) 
+  public boolean removeProduct(String id) 
   {
-    return items.removeIf(item -> item.getProduct().getId().equalsIgnoreCase(productId));
-  }
+    Product product = productManager.getProductById(id);
 
-  public Optional<InventoryItem> findItemById(String productId) 
-  {
-    return items.stream().filter(item -> item.getProduct().getId().equalsIgnoreCase(productId)).findFirst();
-  }
-
-  public boolean restockProduct(String productId, int amount) 
-  {
-    Optional<InventoryItem> itemOpt = findItemById(productId);
-
-    if (itemOpt.isPresent()) 
-    {
-      itemOpt.get().addStock(amount);
-      return true;
-    }
+    if (product != null && items.containsKey(product))
+      return items.remove(product) != null;
+    
     return false;
   }
 
-  public boolean updateStockQuantity(String productId, int newQuantity) 
+  public int getProductQuantity(String id)
+  {
+    Product product = productManager.getProductById(id);
+
+    if (product != null)
+      return items.get(product);
+    else
+      return 0;
+  }
+
+  private boolean updateStockQuantity(String id, int newQuantity) 
   {
     if (newQuantity < 0) 
       return false;
 
-    Optional<InventoryItem> itemOpt = findItemById(productId);
+    Product product = productManager.getProductById(id);
 
-    if (itemOpt.isPresent()) 
-    {
-      itemOpt.get().setQuantity(newQuantity);
-      return true;
-    }
-    return false;
+    if (product == null && !items.containsKey(product))
+      return false;
+
+    return items.replace(product, newQuantity) != null;
+  }
+
+  public boolean restockProduct(String id, int amount) 
+  {
+    if (amount < 0)
+      return false;
+
+    Product product = productManager.getProductById(id);
+
+    if (product == null && !items.containsKey(product))
+      return false;
+    
+    int currentAmount = getProductQuantity(id);
+    return updateStockQuantity(id, currentAmount + amount);
+  }
+
+  public boolean decreaseProduct(String id, int amount)
+  {
+    if (amount < 0)
+      return false;
+
+    Product product = productManager.getProductById(id);
+
+    if (product == null && !items.containsKey(product))
+      return false;
+    
+    int currentAmount = getProductQuantity(id);
+    if (currentAmount - amount < 0)
+      return false;
+
+    return updateStockQuantity(id, currentAmount - amount);
   }
 }

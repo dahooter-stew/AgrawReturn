@@ -41,6 +41,7 @@ public class ProductManager {
 				return product;
 			}
 		}
+
 		return null;
 	}
 
@@ -61,5 +62,4 @@ public class ProductManager {
 		}
 		return false;
 	}
-
 }

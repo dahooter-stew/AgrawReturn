@@ -6,6 +6,7 @@ public abstract class Transaction {
 	int amount;
 	double price; 
 	String date;
+  User transactedBy;
 	
 	public Transaction (String trans_id, int amount, double price, String date) {
 		this.trans_id = trans_id;
