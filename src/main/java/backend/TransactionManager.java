@@ -26,7 +26,14 @@ public class TransactionManager implements Serializable
 
   public void processTransaction(Transaction transaction) 
   {
-    if (!transaction.validateTransaction()) return;
+    if (!transaction.validateTransaction()) 
+      return;
+
+    int amount = StoreSystem.instance().inventory.getProductQuantity(transaction.getProduct());
+    if (transaction.getAmount() > amount)
+      return;
+
+    StoreSystem.instance().inventory.decreaseProduct(transaction.getProduct(), transaction.getAmount());
     transactionHistory.add(transaction);
   }
 
