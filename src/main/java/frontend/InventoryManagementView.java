@@ -105,7 +105,7 @@ public class InventoryManagementView extends BorderPane
     addStock.setOnAction(e -> handleChangeStock(item, 1));
     Label qty = new Label(String.valueOf(inventory.getProductQuantity(item))); // display qty as well
 
-    Region spacer = new Region();                   // pushes Edit and - + to the right
+    Region spacer = new Region(); // pushes Edit and - + to the FAR right
     HBox.setHgrow(spacer, Priority.ALWAYS);
 
     HBox row = new HBox(10, check, new VBox(name, info), desc, spacer, editBtn, minusStock, qty, addStock);
@@ -192,7 +192,7 @@ private void showAddDialog(){
 
     try {
       int qty = Integer.parseInt(quantityField.getText().trim());
-      inventory.addProduct(foundProduct, qty);   // CHANGE: uses the product from ProductManager
+      inventory.addProduct(foundProduct, qty);  
       availability.put(foundProduct.getId(), getStatus(avaiBox));
       refreshTable();
     } 
