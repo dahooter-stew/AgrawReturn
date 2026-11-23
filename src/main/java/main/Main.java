@@ -1,6 +1,9 @@
 package main;
 
 import backend.StoreSystem;
+
+import java.io.IOException;
+
 import backend.Clerk;
 import backend.Inventory;
 import backend.Manager;
@@ -62,5 +65,14 @@ public class Main extends Application
   public static void main(String[] args)
   {
     launch(args);
+
+    try 
+    {
+      StoreSystem.instance().saveToFile("src/main/java/data/hehe.ser");
+    } catch(IOException err) 
+    { 
+      System.out.println("WHY");
+    }
+    System.out.println("BYE");
   }
 }
