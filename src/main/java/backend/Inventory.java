@@ -11,7 +11,7 @@ import java.util.HashMap;
 public class Inventory implements Serializable 
 {
   // for saving into files in the future
-  private static final long serialVersionUID = 3L;
+  private static final long serialVersionUID = 4L;
 
   private Map<Product, Integer> items;
 
@@ -20,9 +20,9 @@ public class Inventory implements Serializable
     this.items = new HashMap<>();
   }
 
-  public HashMap<Product, Integer> getItems() 
+  public List<Product> getItems() 
   {
-    return new HashMap<>(items);
+    return new ArrayList<>(items.keySet());
   }
 
   public void addProduct(Product product, int initialQuantity)

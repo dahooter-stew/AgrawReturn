@@ -18,7 +18,6 @@ public class StoreSystem implements Serializable
   public final TransactionManager transactionManager = new TransactionManager();
   public final UserManager userManager = new UserManager();
   public final Inventory inventory = new Inventory();
-  public final BalanceManager balanceManager = new BalanceManager();
 
   private StoreSystem() {}
 

@@ -1,7 +1,6 @@
 package frontend;
 
 import backend.Inventory;
-import backend.InventoryItem;
 import backend.Product;
 import backend.ProductManager;
 
@@ -12,7 +11,6 @@ import javafx.scene.layout.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +32,7 @@ public class InventoryManagementView extends BorderPane
 
   // inventory table in this vbox
   private VBox rowsBox;
-  private List<InventoryItem> checkedItems = new ArrayList<>();
+  private List<Product> checkedItems = new ArrayList<>();
  
   // inputs and labels
   private TextField searchField;
@@ -81,8 +79,7 @@ public class InventoryManagementView extends BorderPane
 
   // CREATE THE ROWS IN THE MAIN AREA WITH THE INVENTORY ROWS
 
-  private HBox createRow(InventoryItem item){
-    Product p = item.getProduct();
+  private HBox createRow(Product item){
 
     CheckBox check = new CheckBox();
     check.setOnAction(e -> {
@@ -93,10 +90,10 @@ public class InventoryManagementView extends BorderPane
       updateHeaderButton();
     });
 
-    Label name = new Label(p.getName());
+    Label name = new Label(item.getName());
     name.setStyle("-fx-font-weight: bold;"); // BOLDEN IT
-    Label info = new Label("Php " + p.getPrice() + " | Stock: " + item.getQuantity());
-    Label desc = new Label(p.getDescription());     
+    Label info = new Label("Php " + item.getPrice() + " | Stock: " + inventory.getProductQuantity(item));
+    Label desc = new Label(item.getDescription());     
 
     Button editBtn = new Button("Edit");
     editBtn.setOnAction(e -> showEditDialog(item));
@@ -106,7 +103,7 @@ public class InventoryManagementView extends BorderPane
     minusStock.setOnAction(e -> handleChangeStock(item, -1));
     Button addStock = new Button("+");
     addStock.setOnAction(e -> handleChangeStock(item, 1));
-    Label qty = new Label(String.valueOf(item.getQuantity())); // display qty as well
+    Label qty = new Label(String.valueOf(inventory.getProductQuantity(item))); // display qty as well
 
     Region spacer = new Region();                   // pushes Edit and - + to the right
     HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -127,11 +124,11 @@ public class InventoryManagementView extends BorderPane
     addOrDeleteBtn.setText(checkedItems.isEmpty() ? "Add +" : "Delete");
   }
 
-  private void handleChangeStock(InventoryItem item, int change){
-    if (item.getQuantity() + change < 0)
+  private void handleChangeStock(Product item, int change){
+    if (inventory.getProductQuantity(item) + change < 0)
       return;
 
-    item.setQuantity(item.getQuantity() + change);
+    inventory.restockProduct(item, change);
     refreshTable();
   }
 
@@ -185,8 +182,8 @@ private void showAddDialog(){
       return;
     }
     // avoid repeat by checking existing inventory items
-    for (InventoryItem item : inventory.getItems()) {
-      if (item.getProduct().getId().equals(foundProduct.getId())) 
+    for (Product item : inventory.getItems()) {
+      if (item.getId().equals(foundProduct.getId())) 
       {
         showAlert(Alert.AlertType.ERROR, "Error", "That product is already in the inventory. Try Restocking?");
         return;
@@ -205,17 +202,15 @@ private void showAddDialog(){
   }
 
   // EDIT INVENTORY
-private void showEditDialog(InventoryItem item) {
-  Product p = item.getProduct();
-
+private void showEditDialog(Product item) {
   // LEFT SIDE CONTAINS UNEDITABLE PRODUCT DETAILS
-  Label stockLabel = new Label("Product Quantity: " + item.getQuantity());
+  Label stockLabel = new Label("Product Quantity: " + inventory.getProductQuantity(item));
   VBox left = new VBox(5,
-    new Label("Product Name: " + p.getName()),
+    new Label("Product Name: " + item.getName()),
     stockLabel,
-    new Label("Standard Price: " + p.getPrice()),
-    new Label("Product ID: " + p.getId()),
-    new Label("Description: " + p.getDescription())
+    new Label("Standard Price: " + item.getPrice()),
+    new Label("Product ID: " + item.getId()),
+    new Label("Description: " + item.getDescription())
   );
 
   // RIGHT SIDE CONTAINS EDITABLE INVENTORY PRODUCT DETAILS
@@ -224,8 +219,8 @@ private void showEditDialog(InventoryItem item) {
   Button btnRestock = new Button("Restock");
   btnRestock.setOnAction(e -> handleRestockProduct(item, stockField, stockLabel));
 
-  TextField priceField = new TextField(String.valueOf(p.getPrice()));
-  VBox avaiBox = createAvaiBox(getAvailability(p.getId())); 
+  TextField priceField = new TextField(String.valueOf(item.getPrice()));
+  VBox avaiBox = createAvaiBox(getAvailability(item.getId())); 
 
   VBox right = new VBox(5,
     new Label("Stock:"), new HBox(5, stockField, btnRestock),
@@ -238,8 +233,8 @@ private void showEditDialog(InventoryItem item) {
   }
 
   try {
-    p.setPrice(Double.parseDouble(priceField.getText().trim()));
-    availability.put(p.getId(), getStatus(avaiBox));         
+    item.setPrice(Double.parseDouble(priceField.getText().trim()));
+    availability.put(item.getId(), getStatus(avaiBox));         
     // hides upon refresh if status is NOT available
     refreshTable();                                           
   } 
@@ -248,12 +243,12 @@ private void showEditDialog(InventoryItem item) {
   }
 }
 
-  private void handleRestockProduct(InventoryItem item, TextField stockField, Label stockLabel){
+  private void handleRestockProduct(Product item, TextField stockField, Label stockLabel){
     try{
       int addQty = Integer.parseInt(stockField.getText().trim());
 
-      if (inventory.restockProduct(item.getProduct().getId(), addQty)) {
-        stockLabel.setText("Product Quantity: " + item.getQuantity());
+      if (inventory.restockProduct(item, addQty)) {
+        stockLabel.setText("Product Quantity: " + inventory.getProductQuantity(item));
         stockField.clear();
         refreshTable();
       } 
@@ -267,9 +262,9 @@ private void showEditDialog(InventoryItem item) {
   }
 
   private void handleDeleteProduct() {
-    for (InventoryItem item : new ArrayList<>(checkedItems)){
-      inventory.removeProduct(item.getProduct().getId());
-      availability.remove(item.getProduct().getId());
+    for (Product item : new ArrayList<>(checkedItems)){
+      inventory.removeProduct(item);
+      availability.remove(item.getId());
     }
     refreshTable();
   }
@@ -329,23 +324,22 @@ private void showEditDialog(InventoryItem item) {
   // hides unavailable/unlisted products when updated that way
   public void refreshTable() {
     String search = searchField.getText().trim().toLowerCase();
-    List<InventoryItem> matches = new ArrayList<>();
+    List<Product> matches = new ArrayList<>();
 
-    for (InventoryItem item : inventory.getItems()){
-      Product p = item.getProduct();
+    for (Product item : inventory.getItems()){
 
       // only available allowed
-      if (!getAvailability(p.getId()).equals("Available"))
+      if (!getAvailability(item.getId()).equals("Available"))
         continue;
       // matches the search
-      if (p.getName().toLowerCase().contains(search) || p.getId().toLowerCase().contains(search))
+      if (item.getName().toLowerCase().contains(search) || item.getId().toLowerCase().contains(search))
         matches.add(item);
     }
 
     // one row per product
     rowsBox.getChildren().clear();
     checkedItems.clear();
-    for (InventoryItem item : matches) {
+    for (Product item : matches) {
       rowsBox.getChildren().add(createRow(item));
       rowsBox.getChildren().add(new Separator());
     }

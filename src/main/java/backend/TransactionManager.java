@@ -6,6 +6,7 @@ import java.util.List;
 
 public class TransactionManager implements Serializable
 {
+  public double balance = 0.0;
   private List<Transaction> transactionHistory;
 
   TransactionManager()
@@ -39,6 +40,7 @@ public class TransactionManager implements Serializable
       else if (transaction instanceof Purchase)
         profit -= transaction.getPrice();
     }
+    balance = profit;
     return profit;
   }
 

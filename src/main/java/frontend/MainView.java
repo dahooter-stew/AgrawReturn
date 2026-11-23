@@ -2,8 +2,10 @@ package frontend;
 
 import backend.Inventory;
 import backend.ProductManager;
-import backend.User;
 import backend.UserManager;
+import backend.TransactionManager;
+
+import backend.User;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,19 +23,25 @@ public class MainView extends BorderPane
   private static final String NAV_ACTIVE = "-fx-background-color: #6b7f96; -fx-text-fill: white; -fx-font-size: 14px;"; // TO CHANGE INTO STH MORE AUTUMNAL DOE I LOWKEY TOOK THIS FROM CANVA ROUGH PROTOTYPE
 
   private final User user;
+
   private final UserManager users;
   private final Inventory inventory;
   private final ProductManager productManager;
+  private final TransactionManager transactionManager;
+
   private final Runnable onLogout;
   private final boolean isManager;
 
   private final List<Button> navButtons = new ArrayList<>();
 
-  public MainView(User user, UserManager users, Inventory inventory, ProductManager productManager, Runnable onLogout){
+  public MainView(User user, UserManager users, Inventory inventory, ProductManager productManager, TransactionManager transactionManager, Runnable onLogout){
     this.user = user;
+
     this.users = users;
     this.inventory = inventory;
     this.productManager = productManager;
+    this.transactionManager = transactionManager;
+
     this.onLogout = onLogout;
     this.isManager = user.isManager();
 
@@ -50,7 +58,7 @@ public class MainView extends BorderPane
     Button overview = navButton("OVERVIEW", this::showOverview);
     Button products = navButton("PRODUCTS", () -> setContent(new ProductManagementView(productManager, inventory)));
     Button inv = navButton("INVENTORY", () -> setContent(new InventoryManagementView(inventory, productManager)));
-    Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {})));
+    Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {}, transactionManager, productManager, user)));
 
     // depending on what user options
     Button extra;
@@ -97,7 +105,7 @@ public class MainView extends BorderPane
     for (Button b : navButtons){
         b.setStyle(b.getText().equals("OVERVIEW") ? NAV_ACTIVE : NAV_STYLE);
     }
-    setContent(new DashboardView(inventory, user, users));
+    setContent(new DashboardView(inventory, user, users, transactionManager));
   }
 
   // views are rebuilt on every navigation

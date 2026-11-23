@@ -24,6 +24,8 @@ public class LoginView extends VBox
     this.users = users;
     this.onLogin = onLogin;
 
+    users.printUsers();
+
     setSpacing(15);
     setPadding(new Insets(30));
     setAlignment(Pos.CENTER);
