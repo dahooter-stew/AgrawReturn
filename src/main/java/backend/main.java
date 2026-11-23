@@ -6,13 +6,18 @@ public class main
 {
   public static void main(String[] args) 
   {
-    StoreSystem.instance().productManager.addProduct("2025-10100", "Milk", "Milky goodness", 1000.0);
-    StoreSystem.instance().productManager.addProduct("2025-20056", "Eggs", "Unfortunate Child", 1920.0);
-    StoreSystem.instance().productManager.addProduct("2025-12039", "Flour", "MMMM bred", 121.0);
+    // ADD PRODUCT
+    Product milk = StoreSystem.instance().productManager.addProduct("2025-10100", "Milk", "Milky goodness", 1000.0);
+    Product eggs = StoreSystem.instance().productManager.addProduct("2025-20056", "Eggs", "Unfortunate Child", 1920.0);
+    Product flour = StoreSystem.instance().productManager.addProduct("2025-12039", "Flour", "MMMM bred", 121.0);
     StoreSystem.instance().productManager.printProducts();
     System.out.println();
 
-    StoreSystem.instance().userManager.addUser(new Manager("Jann", "jann"));
+    // ADD USER
+    Manager jann = new Manager("Jann", "jann");
+    Clerk juan = new Clerk("Juan", "juan");
+    StoreSystem.instance().userManager.addUser(jann); // manager
+    StoreSystem.instance().userManager.addUser(juan); // clerk
     StoreSystem.instance().userManager.printUsers();
     System.out.println();
 
@@ -21,24 +26,16 @@ public class main
     //     );
     // System.out.println("====");
 
-    StoreSystem.instance().transactionManager.processTransaction(
-      new Sale(
-        StoreSystem.instance().productManager.getProductById("2025-10100"),
-        10, "11-23-26", StoreSystem.instance().userManager.getUser("Jann")
-      )
-    );
-    StoreSystem.instance().transactionManager.processTransaction(
-      new Sale(
-        StoreSystem.instance().productManager.getProductByName("Eggs"),
-        90, "11-23-26", StoreSystem.instance().userManager.getUser("Jann")
-      )
-    );
+    // ADD TRANSACTIONS
+    StoreSystem.instance().transactionManager.processTransaction(new Sale(milk, 10, "11-23-26", jann));
+    StoreSystem.instance().transactionManager.processTransaction(new Sale(eggs, 90, "11-23-26", juan));
+    StoreSystem.instance().transactionManager.processTransaction(new Sale(flour, 21, "11-23-26", juan));
     StoreSystem.instance().transactionManager.printTransactions();
     System.out.println();
 
-    StoreSystem.instance().inventory.addProduct(
-        StoreSystem.instance().productManager.getProductByName("Milk"), 10
-    );
+    StoreSystem.instance().inventory.addProduct(eggs, 1000);
+    StoreSystem.instance().inventory.addProduct(milk, 1000);
+    StoreSystem.instance().inventory.addProduct(flour, 1000);
     StoreSystem.instance().inventory.printInventory();
 
     try {
