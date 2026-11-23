@@ -3,14 +3,13 @@ package backend;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class TransactionManager {
-  private static boolean isLoaded = false;
-  private static List<Transaction> transactionHistory = new ArrayList<>();
+public class TransactionManager 
+{
+  private static List<Transaction> transactionHistory;
 
-  public static void Load() 
+  TransactionManager()
   {
-    if (isLoaded) return;
-    isLoaded = true;
+    transactionHistory = new ArrayList<>();
   }
 
   public static Transaction[] getHistory() 
@@ -40,5 +39,10 @@ public abstract class TransactionManager {
         profit -= transaction.getPrice();
     }
     return profit;
+  }
+
+  public List<Transaction> filterByUser(User user)
+  {
+    return transactionHistory;
   }
 }

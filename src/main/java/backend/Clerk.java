@@ -1,6 +1,7 @@
 package backend;
 
-public class Clerk extends User {
+public class Clerk extends User 
+{
 	
 	private Inventory inventory;
 
@@ -11,8 +12,8 @@ public class Clerk extends User {
 		return false; 
 	}
 	
-	public void recordTransaction(Transaction transaction) {
-		TransactionManager.processTransaction(transaction);
+    public void recordTransaction(Transaction transaction) {
+    TransactionManager.processTransaction(transaction);
 	}
 	
 	// CHECK INVENTORY LEVELS

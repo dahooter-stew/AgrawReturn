@@ -14,7 +14,6 @@ public class Inventory implements Serializable
   private static final long serialVersionUID = 3L;
 
   private Map<Product, Integer> items;
-  private ProductManager productManager;
 
   public Inventory() 
   {
@@ -26,77 +25,70 @@ public class Inventory implements Serializable
     return new HashMap<>(items);
   }
 
-  public void addProductById(String id, int initialQuantity)
+  public void addProduct(Product product, int initialQuantity)
   {
-    Product product = productManager.getProductById(id);
-
-    if (product == null && items.containsKey(product))
+    if (product == null || items.containsKey(product) ||
+        !product.equals(System.instance().productManager.getProductById(product.getId())))
       return;
 
     items.put(product, initialQuantity);
   }
 
-  public boolean removeProduct(String id) 
+  public boolean removeProduct(Product product) 
   {
-    Product product = productManager.getProductById(id);
-
-    if (product != null && items.containsKey(product))
-      return items.remove(product) != null;
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(System.instance().productManager.getProductById(product.getId())))
+      return false;
     
-    return false;
+    return items.remove(product) != null;
   }
 
-  public int getProductQuantity(String id)
+  public Integer getProductQuantity(Product product)
   {
-    Product product = productManager.getProductById(id);
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(System.instance().productManager.getProductById(product.getId())))
+      return null;
 
-    if (product != null)
-      return items.get(product);
-    else
-      return 0;
+    return items.get(product);
   }
 
-  private boolean updateStockQuantity(String id, int newQuantity) 
+  private boolean updateStockQuantity(Product product, int newQuantity) 
   {
     if (newQuantity < 0) 
       return false;
 
-    Product product = productManager.getProductById(id);
-
-    if (product == null && !items.containsKey(product))
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(System.instance().productManager.getProductById(product.getId())))
       return false;
 
     return items.replace(product, newQuantity) != null;
   }
 
-  public boolean restockProduct(String id, int amount) 
+  public boolean restockProduct(Product product, int amount) 
   {
     if (amount < 0)
       return false;
 
-    Product product = productManager.getProductById(id);
-
-    if (product == null && !items.containsKey(product))
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(System.instance().productManager.getProductById(product.getId())))
       return false;
     
-    int currentAmount = getProductQuantity(id);
-    return updateStockQuantity(id, currentAmount + amount);
+    int currentAmount = getProductQuantity(product);
+    return updateStockQuantity(product, currentAmount + amount);
   }
 
-  public boolean decreaseProduct(String id, int amount)
+  public boolean decreaseProduct(Product product, int amount)
   {
     if (amount < 0)
       return false;
 
-    Product product = productManager.getProductById(id);
-
-    if (product == null && !items.containsKey(product))
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(System.instance().productManager.getProductById(product.getId())))
       return false;
     
-    int currentAmount = getProductQuantity(id);
+    int currentAmount = getProductQuantity(product);
     if (currentAmount - amount < 0)
       return false;
-
-    return updateStockQuantity(id, currentAmount - amount);
+    return updateStockQuantity(product, currentAmount - amount);
   }
 }

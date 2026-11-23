@@ -1,9 +1,11 @@
 package backend;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserManager {
+public class UserManager implements Serializable
+{
   private final List<User> users = new ArrayList<>();
 
   public User login(String username, String password) {

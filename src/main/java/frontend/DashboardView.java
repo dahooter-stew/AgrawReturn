@@ -5,7 +5,6 @@ import java.util.List;
 
 import backend.Clerk;
 import backend.Inventory;
-import backend.InventoryItem;
 import backend.Purchase;
 import backend.Sale;
 import backend.Transaction;

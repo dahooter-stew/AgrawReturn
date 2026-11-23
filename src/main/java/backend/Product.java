@@ -5,7 +5,8 @@ import java.io.Serializable;
 // simple product class
 // essentially just a class with attributes
 // + getters & setters
-public class Product implements Serializable {
+public class Product implements Serializable 
+{
   private static final long serialVersionUID = 2L;
 
   private String id;

@@ -1,6 +1,9 @@
 package backend;
 
-public abstract class User {
+import java.io.Serializable;
+
+public abstract class User implements Serializable
+{
 	
 	private String username;
 	private String password;
@@ -30,4 +33,12 @@ public abstract class User {
 		this.password = password; 
 	}
 
+  @Override
+  public boolean equals(Object o)
+  {
+    if (o instanceof User other)
+      return username.equals(other.getUsername()) && password.equals(other.getPassword());
+    else
+      return false;
+  }
 }

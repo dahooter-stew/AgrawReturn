@@ -1,12 +1,15 @@
 package backend;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class ProductManager {
+public class ProductManager implements Serializable
+{
 	
 	private HashMap<String, Product> products = new HashMap<>();
 	
-	public Product addProduct(String id, String name, String description, double price) {
+	public Product addProduct(String id, String name, String description, double price) 
+  {
 		//ADD PROBLEM CASES
 		
 		if (id == null || id.isBlank()) {
