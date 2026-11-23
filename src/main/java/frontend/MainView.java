@@ -6,6 +6,8 @@ import backend.UserManager;
 import backend.TransactionManager;
 
 import backend.User;
+import backend.Manager;
+import backend.Clerk;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,7 +36,8 @@ public class MainView extends BorderPane
 
   private final List<Button> navButtons = new ArrayList<>();
 
-  public MainView(User user, UserManager users, Inventory inventory, ProductManager productManager, TransactionManager transactionManager, Runnable onLogout){
+  public MainView(User user, UserManager users, Inventory inventory, ProductManager productManager, TransactionManager transactionManager, Runnable onLogout)
+  {
     this.user = user;
 
     this.users = users;
@@ -55,34 +58,56 @@ public class MainView extends BorderPane
     Label logo = new Label("LOGOHERE");
     logo.setStyle("-fx-font-size: 20px;");
 
-    Button overview = navButton("OVERVIEW", this::showOverview);
-    Button products = navButton("PRODUCTS", () -> setContent(new ProductManagementView(productManager, inventory)));
-    Button inv = navButton("INVENTORY", () -> setContent(new InventoryManagementView(inventory, productManager)));
-    Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {}, transactionManager, inventory, user)));
+    if (user instanceof Clerk)
+    {
+      Button overview = navButton("OVERVIEW", this::showOverview);
+      Button inv = navButton("INVENTORY", () -> setContent(new InventoryManagementView(inventory, productManager)));
+      Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {}, transactionManager, inventory, user)));
+      Button chat = navButton("CHAT", () -> setContent(new PlaceholderView("Chat")));
 
-    // depending on what user options
-    Button extra;
-    if (isManager){
-        extra = navButton("CLERKS", () -> setContent(new ClerksView(users)));
-    } else {
-        extra = navButton("CHAT", () -> setContent(new PlaceholderView("Chat")));
+      Button settings = navButton("SETTINGS", () -> setContent(new Settings(user, users))); // PASS THESE Parametera
+      Button logout = new Button("LOG OUT");
+      logout.setStyle(NAV_STYLE);
+      logout.setOnAction(e -> onLogout.run());
+
+      Region spacer = new Region();
+      VBox.setVgrow(spacer, Priority.ALWAYS);
+
+      VBox sidebar = new VBox(8,logo, overview,inv, transactions, new Separator(), new Label("ACCOUNT"), settings, logout,spacer);
+      sidebar.setPadding(new Insets(20));
+      sidebar.setPrefWidth(200);
+      sidebar.setStyle(SIDEBAR_BG);
+      sidebar.setAlignment(Pos.TOP_LEFT);
+      return sidebar;
     }
-    
+    else if (user instanceof Manager)
+    {
+      Button overview = navButton("OVERVIEW", this::showOverview);
+      Button products = navButton("PRODUCTS", () -> setContent(new ProductManagementView(productManager, inventory)));
+      Button inv = navButton("INVENTORY", () -> setContent(new InventoryManagementView(inventory, productManager)));
+      Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {}, transactionManager, inventory, user)));
+      Button chat = navButton("CHAT", () -> setContent(new PlaceholderView("Chat")));
 
-    Button settings = navButton("SETTINGS", () -> setContent(new Settings(user, users))); // PASS THESE Parametera
-    Button logout = new Button("LOG OUT");
-    logout.setStyle(NAV_STYLE);
-    logout.setOnAction(e -> onLogout.run());
+      // depending on what user options
+      Button extra = navButton("CLERKS", () -> setContent(new ClerksView(users)));
 
-    Region spacer = new Region();
-    VBox.setVgrow(spacer, Priority.ALWAYS);
+      Button settings = navButton("SETTINGS", () -> setContent(new Settings(user, users))); // PASS THESE Parametera
+      Button logout = new Button("LOG OUT");
+      logout.setStyle(NAV_STYLE);
+      logout.setOnAction(e -> onLogout.run());
 
-    VBox sidebar = new VBox(8,logo, overview, products, inv, transactions, extra, new Separator(), new Label("ACCOUNT"), settings, logout,spacer);
-    sidebar.setPadding(new Insets(20));
-    sidebar.setPrefWidth(200);
-    sidebar.setStyle(SIDEBAR_BG);
-    sidebar.setAlignment(Pos.TOP_LEFT);
-    return sidebar;
+      Region spacer = new Region();
+      VBox.setVgrow(spacer, Priority.ALWAYS);
+
+      VBox sidebar = new VBox(8,logo, overview, products, inv, transactions, extra, new Separator(), new Label("ACCOUNT"), settings, logout,spacer);
+      sidebar.setPadding(new Insets(20));
+      sidebar.setPrefWidth(200);
+      sidebar.setStyle(SIDEBAR_BG);
+      sidebar.setAlignment(Pos.TOP_LEFT);
+      return sidebar;
+    }
+
+    return null;
   }
 
   private Button navButton(String text, Runnable action){

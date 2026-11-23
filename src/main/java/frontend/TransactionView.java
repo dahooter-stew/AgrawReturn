@@ -7,6 +7,8 @@ import backend.Sale;
 import backend.Transaction;
 import backend.TransactionManager;
 import backend.User;
+import backend.Clerk;
+import backend.Manager;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -34,22 +36,25 @@ public class TransactionView extends BorderPane
 
   private ComboBox<String> typeBox;
 
-  // Sale-specific product dropdown (from Inventory)
-  private VBox saleProductContainer;
+  // Sale product selector (from Inventory)
+  private VBox saleProductBox;
   private ComboBox<Product> productBox;
 
-  // Purchase-specific custom product & source fields
-  private VBox purchaseFieldsContainer;
-  private TextField prodIdField;
-  private TextField prodNameField;
-  private TextField prodDescField;
-  private TextField unitPriceField;
+  // Purchase product fields (matches Product(id, name, description, price))
+  private VBox purchaseProductBox;
+  private TextField idField;
+  private TextField nameField;
+  private TextField descriptionField;
+  private TextField priceField;
+
+  // Purchase-only transaction field
+  private VBox sourceBox;
   private TextField sourceField;
 
   // Shared transaction fields
   private TextField amountField;
-  private Label calculatedTotalLabel;
   private TextField dateField;
+  private Label totalValueLabel;
 
   public TransactionView(Runnable onLogout, TransactionManager transactionManager, Inventory inventory, User user) 
   {
@@ -80,7 +85,7 @@ public class TransactionView extends BorderPane
     Label titleLabel = new Label("Finances & Transaction");
     titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
 
-    // White rounded Balance / Net Profit card (matching 1st mockup)
+    // Top Balance / Net Profit card
     HBox balanceCard = new HBox(15);
     balanceCard.setAlignment(Pos.CENTER_LEFT);
     balanceCard.setPadding(new Insets(18, 22, 18, 22));
@@ -116,12 +121,16 @@ public class TransactionView extends BorderPane
 
     balanceCard.getChildren().addAll(balanceTextBox, spacer, btnCalcProfit);
 
-    // Tabs for All, Sale, and Purchase transactions
+    // Filtered Tabs for All, Sales, and Purchases
     TabPane tabPane = new TabPane();
     tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
     VBox.setVgrow(tabPane, Priority.ALWAYS);
 
-    FilteredList<Transaction> allFiltered = new FilteredList<>(masterData, t -> true);
+    FilteredList<Transaction> allFiltered;
+    if (user instanceof Clerk)
+      allFiltered = new FilteredList<>(masterData, t -> t.getUser().equals(user));
+    else
+      allFiltered = new FilteredList<>(masterData, t -> true);
     FilteredList<Transaction> salesFiltered = new FilteredList<>(masterData, t -> t instanceof Sale);
     FilteredList<Transaction> purchasesFiltered = new FilteredList<>(masterData, t -> t instanceof Purchase);
 
@@ -187,24 +196,26 @@ public class TransactionView extends BorderPane
     return table;
   }
 
-  private ScrollPane createFormSection() 
+  private VBox createFormSection() 
   {
-    VBox form = new VBox(8);
-    form.setPadding(new Insets(6, 6, 10, 18));
+    VBox form = new VBox(12);
+    form.setPadding(new Insets(6, 0, 6, 18));
+    form.setPrefWidth(310);
 
     Label formTitle = new Label("Record New Transaction");
-    formTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 15px; -fx-text-fill: #1e293b;");
+    formTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1e293b;");
 
-    // Transaction Type Dropdown
+    // 1. Transaction Type
     typeBox = new ComboBox<>();
     typeBox.getItems().addAll("Sale", "Purchase");
     typeBox.setValue("Sale");
     typeBox.setMaxWidth(Double.MAX_VALUE);
+    VBox typeGroup = createLabeledField("Transaction Type", typeBox);
 
-    // 1. Sale Mode: Product Dropdown populated from Inventory
+    // 2A. Sale Product Dropdown (from Inventory)
     productBox = new ComboBox<>();
     productBox.setMaxWidth(Double.MAX_VALUE);
-    productBox.setPromptText("Select a product...");
+    productBox.setPromptText("Select product from inventory...");
     productBox.setConverter(new StringConverter<>() 
     {
       @Override
@@ -223,64 +234,104 @@ public class TransactionView extends BorderPane
       }
     });
     refreshProductDropdown();
+    saleProductBox = createLabeledField("Product", productBox);
 
-    saleProductContainer = new VBox(5, new Label("Product:"), productBox);
+    // 2B. Purchase Product Card: strictly ordered (id, name, description, price)
+    Label productCardHeader = new Label("Product Details");
+    productCardHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;");
 
-    // 2. Purchase Mode: Custom Product Text Fields + Source Field
-    prodIdField = new TextField();
-    prodIdField.setPromptText("e.g., 2026-10105");
+    idField = new TextField();
+    idField.setPromptText("e.g., 2026-10105");
 
-    prodNameField = new TextField();
-    prodNameField.setPromptText("e.g., Brown Rice");
+    nameField = new TextField();
+    nameField.setPromptText("e.g., Brown Rice");
 
-    prodDescField = new TextField();
-    prodDescField.setPromptText("e.g., 5kg sack");
+    HBox idAndNameRow = new HBox(
+      8,
+      createLabeledField("ID", idField),
+      createLabeledField("Name", nameField)
+    );
+    HBox.setHgrow(idAndNameRow.getChildren().get(0), Priority.ALWAYS);
+    HBox.setHgrow(idAndNameRow.getChildren().get(1), Priority.ALWAYS);
 
-    unitPriceField = new TextField();
-    unitPriceField.setPromptText("e.g., 250.00");
+    descriptionField = new TextField();
+    descriptionField.setPromptText("e.g., 5kg sack");
+    VBox descGroup = createLabeledField("Description", descriptionField);
 
+    priceField = new TextField();
+    priceField.setPromptText("e.g., 250.00");
+    VBox priceGroup = createLabeledField("Price (₱)", priceField);
+
+    purchaseProductBox = new VBox(8, productCardHeader, idAndNameRow, descGroup, priceGroup);
+    purchaseProductBox.setPadding(new Insets(10));
+    purchaseProductBox.setStyle(
+      "-fx-background-color: #eef2f6;" +
+      "-fx-background-radius: 10;" +
+      "-fx-border-color: #cbd5e1;" +
+      "-fx-border-radius: 10;"
+    );
+    purchaseProductBox.setVisible(false);
+    purchaseProductBox.setManaged(false);
+
+    // 3. Purchase-only Source Field
     sourceField = new TextField();
     sourceField.setPromptText("e.g., Fresh Farms Supplier");
+    sourceBox = createLabeledField("Source", sourceField);
+    sourceBox.setVisible(false);
+    sourceBox.setManaged(false);
 
-    purchaseFieldsContainer = new VBox(
-      6,
-      new Label("Product ID:"), prodIdField,
-      new Label("Product Name:"), prodNameField,
-      new Label("Description:"), prodDescField,
-      new Label("Unit Price (₱):"), unitPriceField,
-      new Label("Source:"), sourceField
-    );
-    purchaseFieldsContainer.setVisible(false);
-    purchaseFieldsContainer.setManaged(false);
-
-    // Toggle between Sale dropdown and Purchase custom fields
-    typeBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-      boolean isPurchase = "Purchase".equalsIgnoreCase(newVal);
-
-      saleProductContainer.setVisible(!isPurchase);
-      saleProductContainer.setManaged(!isPurchase);
-
-      purchaseFieldsContainer.setVisible(isPurchase);
-      purchaseFieldsContainer.setManaged(isPurchase);
-
-      updateEstimatedTotal();
-    });
-
-    // Amount Field
+    // 4. Shared Amount & Date Row
     amountField = new TextField();
     amountField.setPromptText("e.g., 5");
 
-    // Auto-calculated Total Price preview
-    calculatedTotalLabel = new Label("Estimated Total: ₱0.00");
-    calculatedTotalLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #334155;");
-
-    productBox.valueProperty().addListener((obs, o, n) -> updateEstimatedTotal());
-    unitPriceField.textProperty().addListener((obs, o, n) -> updateEstimatedTotal());
-    amountField.textProperty().addListener((obs, o, n) -> updateEstimatedTotal());
-
-    // Date Field
     dateField = new TextField();
-    dateField.setPromptText("e.g., " + LocalDate.now());
+    dateField.setPromptText(LocalDate.now().toString());
+
+    HBox amountAndDateRow = new HBox(
+      8,
+      createLabeledField("Amount", amountField),
+      createLabeledField("Date", dateField)
+    );
+    HBox.setHgrow(amountAndDateRow.getChildren().get(0), Priority.ALWAYS);
+    HBox.setHgrow(amountAndDateRow.getChildren().get(1), Priority.ALWAYS);
+
+    // 5. Total Price Summary Row
+    Label totalTitleLabel = new Label("Total Price:");
+    totalTitleLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #475569;");
+
+    totalValueLabel = new Label("₱0.00");
+    totalValueLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+
+    Region totalSpacer = new Region();
+    HBox.setHgrow(totalSpacer, Priority.ALWAYS);
+
+    HBox totalSummaryBox = new HBox(totalTitleLabel, totalSpacer, totalValueLabel);
+    totalSummaryBox.setAlignment(Pos.CENTER_LEFT);
+    totalSummaryBox.setPadding(new Insets(8, 12, 8, 12));
+    totalSummaryBox.setStyle(
+      "-fx-background-color: #e2e8f0;" +
+      "-fx-background-radius: 8;"
+    );
+
+    // Toggle Sale vs Purchase inputs
+    typeBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+      boolean isPurchase = "Purchase".equalsIgnoreCase(newVal);
+
+      saleProductBox.setVisible(!isPurchase);
+      saleProductBox.setManaged(!isPurchase);
+
+      purchaseProductBox.setVisible(isPurchase);
+      purchaseProductBox.setManaged(isPurchase);
+
+      sourceBox.setVisible(isPurchase);
+      sourceBox.setManaged(isPurchase);
+
+      updateTotalPreview();
+    });
+
+    productBox.valueProperty().addListener((obs, o, n) -> updateTotalPreview());
+    priceField.textProperty().addListener((obs, o, n) -> updateTotalPreview());
+    amountField.textProperty().addListener((obs, o, n) -> updateTotalPreview());
 
     Button btnProcess = new Button("Process Transaction");
     btnProcess.setMaxWidth(Double.MAX_VALUE);
@@ -288,63 +339,68 @@ public class TransactionView extends BorderPane
       "-fx-background-color: #27ae60;" +
       "-fx-text-fill: white;" +
       "-fx-font-weight: bold;" +
-      "-fx-padding: 9 14;" +
+      "-fx-font-size: 13px;" +
+      "-fx-background-radius: 8;" +
+      "-fx-padding: 10 14;" +
       "-fx-cursor: hand;"
     );
     btnProcess.setOnAction(e -> handleProcessTransaction());
 
     form.getChildren().addAll(
       formTitle,
-      new Label("Transaction Type:"), typeBox,
-      saleProductContainer,
-      purchaseFieldsContainer,
-      new Label("Amount / Quantity:"), amountField,
-      calculatedTotalLabel,
-      new Label("Date:"), dateField,
-      new Separator(),
+      typeGroup,
+      saleProductBox,
+      purchaseProductBox,
+      sourceBox,
+      amountAndDateRow,
+      totalSummaryBox,
       btnProcess
     );
 
-    ScrollPane formScroll = new ScrollPane(form);
-    formScroll.setFitToWidth(true);
-    formScroll.setPrefWidth(295);
-    formScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-    return formScroll;
+    return form;
   }
 
-  private void updateEstimatedTotal() 
+  private VBox createLabeledField(String labelText, Control inputControl) 
+  {
+    Label label = new Label(labelText);
+    label.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;");
+    VBox group = new VBox(4, label, inputControl);
+    return group;
+  }
+
+  private void updateTotalPreview() 
   {
     try 
     {
       int qty = Integer.parseInt(amountField.getText().trim());
       if (qty <= 0) 
       {
-        calculatedTotalLabel.setText("Estimated Total: ₱0.00");
+        totalValueLabel.setText("₱0.00");
         return;
       }
 
-      double unitPrice;
+      double price;
       if ("Purchase".equalsIgnoreCase(typeBox.getValue())) 
       {
-        unitPrice = Double.parseDouble(unitPriceField.getText().trim());
+        price = Double.parseDouble(priceField.getText().trim());
       } 
       else 
       {
         Product selected = productBox.getValue();
         if (selected == null) 
         {
-          calculatedTotalLabel.setText("Estimated Total: ₱0.00");
+          totalValueLabel.setText("₱0.00");
           return;
         }
-        unitPrice = selected.getPrice();
+        price = selected.getPrice();
       }
 
-      double total = qty * Math.max(0, unitPrice);
-      calculatedTotalLabel.setText(String.format("Estimated Total: ₱%,.2f", total));
+      double total = qty * Math.max(0, price);
+      totalValueLabel.setText(String.format("₱%,.2f", total));
     } 
     catch (NumberFormatException e) 
     {
-      calculatedTotalLabel.setText("Estimated Total: ₱0.00");
+      totalValueLabel.setText("₱0.00");
     }
   }
 
@@ -389,25 +445,25 @@ public class TransactionView extends BorderPane
       } 
       else 
       {
-        String prodId = prodIdField.getText().trim();
-        String prodName = prodNameField.getText().trim();
-        String prodDesc = prodDescField.getText().trim();
+        String id = idField.getText().trim();
+        String name = nameField.getText().trim();
+        String description = descriptionField.getText().trim();
         String source = sourceField.getText().trim();
 
-        if (prodId.isEmpty() || prodName.isEmpty() || source.isEmpty()) 
+        if (id.isEmpty() || name.isEmpty() || source.isEmpty()) 
         {
-          showAlert(Alert.AlertType.ERROR, "Validation Error", "Product ID, Product Name, and Source cannot be empty.");
+          showAlert(Alert.AlertType.ERROR, "Validation Error", "ID, Name, and Source cannot be empty.");
           return;
         }
 
-        double unitPrice = Double.parseDouble(unitPriceField.getText().trim());
-        if (unitPrice < 0) 
+        double price = Double.parseDouble(priceField.getText().trim());
+        if (price < 0) 
         {
-          showAlert(Alert.AlertType.ERROR, "Validation Error", "Unit price cannot be negative.");
+          showAlert(Alert.AlertType.ERROR, "Validation Error", "Price cannot be negative.");
           return;
         }
 
-        Product customProduct = new Product(prodId, prodName, prodDesc, unitPrice);
+        Product customProduct = new Product(id, name, description, price);
         txn = new Purchase(customProduct, amount, date, user, source);
       }
 
@@ -420,7 +476,7 @@ public class TransactionView extends BorderPane
     } 
     catch (NumberFormatException ex) 
     {
-      showAlert(Alert.AlertType.ERROR, "Input Error", "Amount and Unit Price must be valid numbers.");
+      showAlert(Alert.AlertType.ERROR, "Input Error", "Amount and Price must be valid numbers.");
     }
   }
 
@@ -450,14 +506,14 @@ public class TransactionView extends BorderPane
   private void clearForm() 
   {
     productBox.setValue(null);
-    prodIdField.clear();
-    prodNameField.clear();
-    prodDescField.clear();
-    unitPriceField.clear();
+    idField.clear();
+    nameField.clear();
+    descriptionField.clear();
+    priceField.clear();
     sourceField.clear();
     amountField.clear();
     dateField.clear();
-    calculatedTotalLabel.setText("Estimated Total: ₱0.00");
+    totalValueLabel.setText("₱0.00");
   }
 
   private void showAlert(Alert.AlertType type, String title, String content) 

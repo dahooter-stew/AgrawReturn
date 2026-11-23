@@ -30,21 +30,6 @@ public class Main extends Application
 
     StoreSystem.instance().loadFromFile("src/main/java/data/hehe.ser");
 
-    // TransactionManager.Load();
-    // productManager = new ProductManager();
-    // inventory = new Inventory();
-
-    // products go in the catalog first, then into the inventory
-    // Product charcoal = productManager.addProduct("PROD-001", "Charcoal", "bag", 450.00);
-    // Product seeds = productManager.addProduct("PROD-002", "Seeds", "1kg high-yield seed pack", 280.00);
-    // inventory.addProduct(charcoal, 100);
-    // inventory.addProduct(seeds, 50);
-
-    // DEMO ACCOUNTS
-    // users = new UserManager();
-    // users.addUser(new Manager("jannbajade", "jannbajade"));
-    // users.addUser(new Clerk("mikaela", "mikaela"));
-
     showLoginScreen();
     primaryStage.setTitle("Store Management System");
     primaryStage.show();
