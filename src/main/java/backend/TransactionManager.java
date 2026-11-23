@@ -46,7 +46,13 @@ public class TransactionManager implements Serializable
 
   public List<Transaction> filterByUser(User user)
   {
-    return transactionHistory;
+    List<Transaction> filtered = new ArrayList<>();
+
+    for (Transaction transaction : transactionHistory)
+      if (transaction.getUser().equals(user))
+        filtered.add(transaction);
+
+    return filtered;
   }
 
   public void printTransactions()

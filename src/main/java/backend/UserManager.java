@@ -16,7 +16,7 @@ public class UserManager implements Serializable
     return null;
   }
 
-  public void addUser(User user) 
+  public User addUser(User user) 
   {
     if (user.getUsername().isEmpty() || user.getPassword().isEmpty())
       throw new IllegalArgumentException("Username and password can't be empty.");
@@ -24,6 +24,7 @@ public class UserManager implements Serializable
       throw new IllegalArgumentException("That username is already taken.");
 
     users.add(user);
+    return user;
   }
 
   public void removeUser(User user) 
