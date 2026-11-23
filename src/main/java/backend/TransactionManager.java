@@ -1,34 +1,35 @@
 package backend;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionManager 
+public class TransactionManager implements Serializable
 {
-  private static List<Transaction> transactionHistory;
+  private List<Transaction> transactionHistory;
 
   TransactionManager()
   {
     transactionHistory = new ArrayList<>();
   }
 
-  public static Transaction[] getHistory() 
+  public Transaction[] getHistory() 
   {
     return transactionHistory.toArray(new Transaction[0]); 
   }
   
-  public static List<Transaction> getHistoryList() 
+  public List<Transaction> getHistoryList() 
   {
     return transactionHistory;
   }
 
-  public static void processTransaction(Transaction transaction) 
+  public void processTransaction(Transaction transaction) 
   {
     if (!transaction.validateTransaction()) return;
     transactionHistory.add(transaction);
   }
 
-  public static double calculateProfit() 
+  public double calculateProfit() 
   {
     double profit = 0.0;
     for (Transaction transaction : transactionHistory)

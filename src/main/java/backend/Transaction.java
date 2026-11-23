@@ -5,21 +5,23 @@ import java.io.Serializable;
 public abstract class Transaction implements Serializable
 {
 	
-	String trans_id;
+  Product product;
+  String date;
 	int amount;
 	double price; 
-	String date;
   User user;
 	
-	public Transaction (String trans_id, int amount, double price, String date) {
-		this.trans_id = trans_id;
+	public Transaction (Product product, int amount, String date, User user) {
+		this.product = product;
 		this.amount = amount;
-		this.price = price;
 		this.date = date;
+    this.user = user;
+
+    price = amount * product.getPrice();
 	}
 	
-	public String getId() {
-		return this.trans_id;
+	public Product getProduct() {
+		return this.product;
 	}
 	
 	public int getAmount() {
@@ -39,8 +41,8 @@ public abstract class Transaction implements Serializable
     return this.user;
   }
 	
-	public void setId(String trans_id) {
-		this.trans_id = trans_id;
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 	
 	public void setAmount(int amount) {
@@ -65,14 +67,14 @@ public abstract class Transaction implements Serializable
   @Override
   public String toString()
   {
-    return trans_id + " | " + date + " | " + price + " | " + amount + "\n> " + user.toString() + "-" + (this instanceof Purchase ? "Purcahse" : "Sale"); 
+    return product + "|" + date + "|" + amount + " - " + price + "\n> " + user.toString() + "-" + (this instanceof Purchase ? "Purcahse" : "Sale"); 
   }
 
   @Override
   public boolean equals (Object o)
   {
     if (o instanceof Transaction other)
-      return trans_id.equals(other.getId()) && (price == other.getPrice()) && (amount == other.getAmount()) && date.equals(other.getDate()) && user.equals(other.getUser());
+      return product.equals(other.getProduct()) && (price == other.getPrice()) && (amount == other.getAmount()) && date.equals(other.getDate()) && user.equals(other.getUser());
 
     else
       return false;

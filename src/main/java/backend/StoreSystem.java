@@ -38,7 +38,7 @@ public class StoreSystem implements Serializable
     }
   }
 
-  public static void loadFromFile(String filePath) 
+  public void loadFromFile(String filePath) 
   {
     File file = new File(filePath);
     if (!file.exists()) 

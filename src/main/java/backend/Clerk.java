@@ -17,7 +17,7 @@ public class Clerk extends User
 	
   public void recordTransaction(Transaction transaction) 
   {
-    TransactionManager.processTransaction(transaction);
+    StoreSystem.instance().transactionManager.processTransaction(transaction);
 	}
 	
 	// CHECK INVENTORY LEVELS

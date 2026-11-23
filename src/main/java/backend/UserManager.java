@@ -31,6 +31,15 @@ public class UserManager implements Serializable
     users.remove(user);
   }
 
+  public User getUser(String name)
+  {
+    for (User user : users)
+      if (name.equals(user.getUsername()))
+        return user;
+
+    return null;
+  }
+
   public boolean isUsernameTaken(String username, User except) 
   {
     for (User u : users)
