@@ -58,7 +58,7 @@ public class MainView extends BorderPane
     Button overview = navButton("OVERVIEW", this::showOverview);
     Button products = navButton("PRODUCTS", () -> setContent(new ProductManagementView(productManager, inventory)));
     Button inv = navButton("INVENTORY", () -> setContent(new InventoryManagementView(inventory, productManager)));
-    Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {}, transactionManager, productManager, user)));
+    Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {}, transactionManager, inventory, user)));
 
     // depending on what user options
     Button extra;
