@@ -92,6 +92,13 @@ public class Inventory implements Serializable
     return updateStockQuantity(product, currentAmount - amount);
   }
 
+  public void updateInventory()
+  {
+    for (Product item : items.keySet())
+      if (!StoreSystem.instance().productManager.hasProduct(item))
+        items.remove(item);
+  }
+
   public void printInventory()
   {
     System.out.println("=====Inventory=====");

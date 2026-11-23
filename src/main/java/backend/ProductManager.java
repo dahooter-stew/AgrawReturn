@@ -53,6 +53,7 @@ public class ProductManager implements Serializable
 			return false;
 
 		products.remove(id);
+    StoreSystem.instance().inventory.updateInventory();
 		return true;
 	}
 
@@ -64,6 +65,15 @@ public class ProductManager implements Serializable
 
 		return false;
 	}
+
+  public boolean hasProduct(Product product)
+  {
+		for (Product p : products.values())
+			if (p.equals(product))
+				return true;
+
+		return false;
+  }
 
   public void printProducts()
   {
