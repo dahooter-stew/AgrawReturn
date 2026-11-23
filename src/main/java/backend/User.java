@@ -13,23 +13,32 @@ public abstract class User implements Serializable
 	public boolean logIn(String username, String password) {
 		return password.equals(this.password) && username.equals(this.username);
 	}
+
 	public abstract boolean isManager();
 
-	public User(String username, String password) {
+	public User(String username, String password) 
+  {
 		this.username = username;
 		this.password = password;
 	}
 
-	public String getUsername() { 
+	public String getUsername() 
+  { 
 		return username; 
 	}
-	public String getPassword() {
+
+	public String getPassword() 
+  {
 		 return password; 
-		}
-	public void setUsername(String username) {
+  }
+
+	public void setUsername(String username) 
+  {
 		 this.username = username; 
 	}
-	public void setPassword(String password) {
+
+	public void setPassword(String password) 
+  {
 		this.password = password; 
 	}
 

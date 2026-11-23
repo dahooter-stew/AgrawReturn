@@ -8,19 +8,19 @@ public class Manager extends User
 	// restock
 	// 
 
-	public Manager(String username, String password) { 
+	public Manager(String username, String password) 
+  { 
 		super(username, password); 
 	}
-  	@Override public boolean isManager() { 
+
+  @Override public boolean isManager() 
+  { 
 		return true; 
 	}
 	
-	public void addProduct(Product product) {
-	}
+	public void addProduct(Product product) { }
 	
-	public boolean restockProduct(String productId, int amt) {
-    return false;
-	}
+	public boolean restockProduct(String productId, int amt) { return false; }
 	
 	// TODO: MONITOR SALE HISTORY
 	// TODO: ACCESS TRANSACTION HISTORY

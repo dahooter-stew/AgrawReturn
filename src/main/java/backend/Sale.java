@@ -11,12 +11,8 @@ public class Sale extends Transaction {
 	
 	@Override
 	public boolean validateTransaction() {
-		if (price > 0 || amount > 0) {
+		if (price > 0 || amount > 0)
 			return true;
-		}
 		return false;
 	}
-	
-	
-
 }

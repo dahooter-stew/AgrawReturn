@@ -28,7 +28,7 @@ public class Inventory implements Serializable
   public void addProduct(Product product, int initialQuantity)
   {
     if (product == null || items.containsKey(product) ||
-        !product.equals(System.instance().productManager.getProductById(product.getId())))
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return;
 
     items.put(product, initialQuantity);
@@ -37,7 +37,7 @@ public class Inventory implements Serializable
   public boolean removeProduct(Product product) 
   {
     if (product == null || !items.containsKey(product) ||
-        !product.equals(System.instance().productManager.getProductById(product.getId())))
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return false;
     
     return items.remove(product) != null;
@@ -46,7 +46,7 @@ public class Inventory implements Serializable
   public Integer getProductQuantity(Product product)
   {
     if (product == null || !items.containsKey(product) ||
-        !product.equals(System.instance().productManager.getProductById(product.getId())))
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return null;
 
     return items.get(product);
@@ -58,7 +58,7 @@ public class Inventory implements Serializable
       return false;
 
     if (product == null || !items.containsKey(product) ||
-        !product.equals(System.instance().productManager.getProductById(product.getId())))
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return false;
 
     return items.replace(product, newQuantity) != null;
@@ -70,7 +70,7 @@ public class Inventory implements Serializable
       return false;
 
     if (product == null || !items.containsKey(product) ||
-        !product.equals(System.instance().productManager.getProductById(product.getId())))
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return false;
     
     int currentAmount = getProductQuantity(product);
@@ -83,7 +83,7 @@ public class Inventory implements Serializable
       return false;
 
     if (product == null || !items.containsKey(product) ||
-        !product.equals(System.instance().productManager.getProductById(product.getId())))
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return false;
     
     int currentAmount = getProductQuantity(product);
