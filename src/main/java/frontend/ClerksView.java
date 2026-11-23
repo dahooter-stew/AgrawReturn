@@ -12,19 +12,17 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.util.List;
 
-// THIS IS WHERE THE MANAGER ADDS AND REMOVES CLERKS, EXTRA FEATURE IN MANAGER SIDE BAR
 public class ClerksView extends HBox
 {
   private final UserManager users;
   private final TransactionManager transactionManager;
 
-  private final ListView<String> clerks = new ListView<>(); // has the clerk usernames
+  private final ListView<String> clerks = new ListView<>();
   private final ObservableList<Transaction> transactionData = FXCollections.observableArrayList();
   private final TableView<Transaction> transactionTable = new TableView<>(transactionData);
   private final Label transactionsTitle = new Label("Clerk Transactions");
@@ -39,8 +37,8 @@ public class ClerksView extends HBox
     this.users = users;
     this.transactionManager = transactionManager;
 
-    setSpacing(20);
-    setPadding(new Insets(18));
+    setSpacing(18);
+    getStyleClass().add("page-container");
 
     VBox leftColumn = createClerkListSection();
     VBox rightColumn = createTransactionsSection();
@@ -48,7 +46,6 @@ public class ClerksView extends HBox
 
     getChildren().addAll(leftColumn, rightColumn);
 
-    // Update right-hand transaction table whenever a clerk is selected
     clerks.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selectedUsername) -> {
       loadTransactionsForClerk(selectedUsername);
     });
@@ -61,9 +58,10 @@ public class ClerksView extends HBox
     VBox left = new VBox(10);
     left.setPrefWidth(320);
     left.setMinWidth(280);
+    left.getStyleClass().add("sheet-card");
 
     Label title = new Label("Clerks");
-    title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+    title.getStyleClass().add("page-title");
 
     VBox.setVgrow(clerks, Priority.ALWAYS);
 
@@ -75,34 +73,28 @@ public class ClerksView extends HBox
     passField.setPromptText("Password");
     HBox.setHgrow(passField, Priority.ALWAYS);
 
-    // ADD USER
-    Button add = new Button("Add Clerk");
+    Button add = new Button("Add");
+    add.getStyleClass().add("btn-olive-pill");
     add.setOnAction(e -> {
-      try 
-      {
+      try {
         users.addUser(new Clerk(nameField.getText().trim(), passField.getText()));
         nameField.clear();
         passField.clear();
         refresh();
-      } 
-      catch (IllegalArgumentException ex) 
-      {
+      } catch (IllegalArgumentException ex) {
         showAlert(ex.getMessage());
       }
     });
 
-    // DELETE SELECTED
     Button remove = new Button("Remove Selected");
     remove.setMaxWidth(Double.MAX_VALUE);
+    remove.getStyleClass().add("btn-danger-pill");
     remove.setOnAction(e -> {
       String selectedName = clerks.getSelectionModel().getSelectedItem();
 
-      if (selectedName != null) 
-      {
-        for (Clerk clerk : users.getClerks()) 
-        {
-          if (clerk.getUsername().equals(selectedName)) 
-          {
+      if (selectedName != null) {
+        for (Clerk clerk : users.getClerks()) {
+          if (clerk.getUsername().equals(selectedName)) {
             users.removeUser(clerk);
             break;
           }
@@ -118,8 +110,9 @@ public class ClerksView extends HBox
   private VBox createTransactionsSection() 
   {
     VBox right = new VBox(10);
+    right.getStyleClass().add("sheet-card");
 
-    transactionsTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+    transactionsTitle.getStyleClass().add("page-title");
 
     transactionTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     transactionTable.setPlaceholder(new Label("Select a clerk to view their transactions."));
@@ -150,8 +143,7 @@ public class ClerksView extends HBox
 
   private void loadTransactionsForClerk(String username) 
   {
-    if (username == null) 
-    {
+    if (username == null) {
       transactionsTitle.setText("Clerk Transactions");
       transactionData.clear();
       transactionTable.setPlaceholder(new Label("Select a clerk to view their transactions."));
@@ -159,17 +151,14 @@ public class ClerksView extends HBox
     }
 
     Clerk selectedClerk = null;
-    for (Clerk clerk : users.getClerks()) 
-    {
-      if (clerk.getUsername().equals(username)) 
-      {
+    for (Clerk clerk : users.getClerks()) {
+      if (clerk.getUsername().equals(username)) {
         selectedClerk = clerk;
         break;
       }
     }
 
-    if (selectedClerk == null || transactionManager == null) 
-    {
+    if (selectedClerk == null || transactionManager == null) {
       transactionData.clear();
       return;
     }
@@ -180,20 +169,21 @@ public class ClerksView extends HBox
     transactionTable.setPlaceholder(new Label("No transactions recorded for " + selectedClerk.getUsername() + "."));
   }
 
-  // reloads the usernames of the clerks currently
   private void refresh() 
   {
     clerks.getItems().clear();
-    for (Clerk clerk : users.getClerks()) 
-    {
+    for (Clerk clerk : users.getClerks()) {
       clerks.getItems().add(clerk.getUsername());
     }
   }
 
   private void showAlert(String msg) 
-  { // WHEN ADDING FAILS...
+  {
     Alert a = new Alert(Alert.AlertType.ERROR);
     a.setHeaderText(null);
+    if (getScene() != null) {
+      a.getDialogPane().getStylesheets().addAll(getScene().getStylesheets());
+    }
     a.setContentText(msg);
     a.showAndWait();
   }

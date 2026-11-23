@@ -1,0 +1,427 @@
+/* =========================================================
+   AgrawReturn() Theme Palette
+   Forest Green : #1E3B2F
+   Sage Olive   : #7F8C6A
+   Warm Sand    : #C8B48A
+   Warm Cream   : #F5F0E6
+   ========================================================= */
+
+.root {
+    -fx-background-color: #F5F0E6;
+    -fx-font-family: "System", "Segoe UI", "Helvetica Neue", sans-serif;
+    -fx-text-fill: #1E3B2F;
+}
+
+/* ==================== SIDEBAR (MainView) ==================== */
+.sidebar {
+    -fx-background-color: #7F8C6A;
+    -fx-padding: 22 18 22 18;
+}
+
+.nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F5F0E6;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 9 16 9 16;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+.nav-btn:hover {
+    -fx-background-color: rgba(30, 59, 47, 0.25);
+}
+
+.nav-btn-active {
+    -fx-background-color: #1E3B2F;
+    -fx-text-fill: #F5F0E6;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 9 16 9 16;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+.sidebar-section-label {
+    -fx-text-fill: #1E3B2F;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 0 2 8;
+}
+
+.sidebar-divider .line {
+    -fx-border-color: rgba(30, 59, 47, 0.35);
+    -fx-border-width: 1 0 0 0;
+}
+
+.logout-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1E3B2F;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+.logout-btn:hover {
+    -fx-background-color: rgba(30, 59, 47, 0.18);
+}
+
+/* ==================== CONTAINERS & CARDS ==================== */
+.page-container {
+    -fx-background-color: #F5F0E6;
+    -fx-padding: 22;
+}
+
+/* White rounded sheet matching Inventory, Products, and Dashboard mockups */
+.sheet-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 20;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 20;
+    -fx-border-width: 1.5;
+    -fx-padding: 20 22 20 22;
+    -fx-effect: dropshadow(three-pass-box, rgba(30, 59, 47, 0.07), 10, 0, 0, 3);
+}
+
+/* Warm cream-sand outer shell matching Dashboard & Finance mockups */
+.warm-shell {
+    -fx-background-color: #EFE8D8;
+    -fx-background-radius: 22;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 22;
+    -fx-border-width: 1.5;
+    -fx-padding: 22;
+}
+
+.balance-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 16;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+    -fx-padding: 16 20 16 20;
+}
+
+.sub-card {
+    -fx-background-color: #EFE8D8;
+    -fx-background-radius: 12;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 10;
+}
+
+.total-bar {
+    -fx-background-color: #EFE8D8;
+    -fx-background-radius: 10;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 10;
+    -fx-padding: 7 12 7 12;
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+.page-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3B2F;
+}
+
+.welcome-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3B2F;
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3B2F;
+}
+
+.balance-amount {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3B2F;
+}
+
+.muted-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #5A6B5C;
+}
+
+.field-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3B2F;
+}
+
+/* ==================== INPUTS & SEARCH PILL ==================== */
+.text-field, .password-field, .combo-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 6 10 6 10;
+    -fx-text-fill: #1E3B2F;
+    -fx-prompt-text-fill: #8B9388;
+}
+
+.text-field:focused, .password-field:focused, .combo-box:focused {
+    -fx-border-color: #1E3B2F;
+    -fx-border-width: 1.5;
+}
+
+.search-pill {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #1E3B2F;
+    -fx-border-width: 1.2;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 6 16 6 16;
+    -fx-pref-width: 240;
+    -fx-text-fill: #1E3B2F;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn-olive-pill {
+    -fx-background-color: #7F8C6A;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 20;
+    -fx-padding: 7 18 7 18;
+    -fx-cursor: hand;
+}
+
+.btn-olive-pill:hover {
+    -fx-background-color: #6B7857;
+}
+
+.btn-forest {
+    -fx-background-color: #1E3B2F;
+    -fx-text-fill: #F5F0E6;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 12;
+    -fx-padding: 9 16 9 16;
+    -fx-cursor: hand;
+}
+
+.btn-forest:hover {
+    -fx-background-color: #2A5040;
+}
+
+.btn-sand {
+    -fx-background-color: #C8B48A;
+    -fx-text-fill: #1E3B2F;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 12;
+    -fx-padding: 8 14 8 14;
+    -fx-cursor: hand;
+}
+
+.btn-sand:hover {
+    -fx-background-color: #B8A275;
+}
+
+.btn-danger-pill {
+    -fx-background-color: #9E3B33;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 20;
+    -fx-padding: 7 18 7 18;
+    -fx-cursor: hand;
+}
+
+.btn-danger-pill:hover {
+    -fx-background-color: #822E27;
+}
+
+/* Inventory - [qty] + Stepper */
+.stepper-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1E3B2F;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 2 8 2 8;
+    -fx-cursor: hand;
+}
+
+.stepper-btn:hover {
+    -fx-background-color: #EFE8D8;
+    -fx-background-radius: 6;
+}
+
+.stepper-qty {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #1E3B2F;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 2 10 2 10;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3B2F;
+}
+
+/* ==================== INVENTORY & PRODUCT ROWS ==================== */
+.clean-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.clean-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.row-item {
+    -fx-padding: 12 10 12 10;
+    -fx-border-color: transparent transparent #C8B48A transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-color: #FFFFFF;
+}
+
+.row-item:hover {
+    -fx-background-color: #FAF7F0;
+}
+
+.row-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3B2F;
+}
+
+.row-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #5A6B5C;
+}
+
+.row-tag {
+    -fx-font-size: 12px;
+    -fx-text-fill: #7F8C6A;
+    -fx-font-weight: bold;
+}
+
+/* ==================== TABLES & LIST VIEWS ==================== */
+.table-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #EFE8D8;
+    -fx-background-radius: 12 12 0 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent #C8B48A #C8B48A transparent;
+    -fx-padding: 8 6 8 6;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #1E3B2F;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #EFE8D8 transparent;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #FAF7F0;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #7F8C6A;
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: #FFFFFF;
+}
+
+.list-view {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+.list-cell {
+    -fx-padding: 8 12 8 12;
+    -fx-text-fill: #1E3B2F;
+}
+
+.list-cell:selected {
+    -fx-background-color: #7F8C6A;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* ==================== TABS (TransactionView) ==================== */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #EFE8D8;
+    -fx-border-color: #C8B48A;
+    -fx-border-radius: 10 10 0 0;
+    -fx-background-radius: 10 10 0 0;
+    -fx-padding: 6 14 6 14;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #1E3B2F;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #F5F0E6;
+    -fx-font-weight: bold;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #1E3B2F;
+    -fx-font-weight: bold;
+}
+
+/* ==================== CHECKBOX & DIALOGS ==================== */
+.check-box .box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #1E3B2F;
+    -fx-border-radius: 4;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #1E3B2F;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #F5F0E6;
+}
+
+.dialog-pane {
+    -fx-background-color: #F5F0E6;
+    -fx-border-color: #C8B48A;
+    -fx-border-width: 1.5;
+}
+
+.dialog-pane .button {
+    -fx-background-color: #7F8C6A;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-background-radius: 16;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: #1E3B2F;
+}
