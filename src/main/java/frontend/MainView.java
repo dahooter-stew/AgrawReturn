@@ -24,7 +24,7 @@ public class MainView extends BorderPane
 {
   private static final String SIDEBAR_BG = "-fx-background-color: #cad1da;";
   private static final String NAV_STYLE = "-fx-background-color: transparent; -fx-font-size: 14px;";
-  private static final String NAV_ACTIVE = "-fx-background-color: #6b7f96; -fx-text-fill: white; -fx-font-size: 14px;";
+  private static final String NAV_ACTIVE = "-fx-background-color: #5b8954; -fx-text-fill: white; -fx-font-size: 14px;";
 
   private static final String LOGO_FILE = "/main/resources/LOGO.png";
   private static final String LOGO_DISK_PATH = "src/main/java/main/resources/LOGO.png";
@@ -55,8 +55,7 @@ public class MainView extends BorderPane
   }
 
   // LOADS THE LOGO IMAGE FOR THE TOP OF THE SIDEBAR
-  private Node createLogo()
-  {
+  private Node createLogo(){
     Image img = null;
 
     // 1. Try classpath first
