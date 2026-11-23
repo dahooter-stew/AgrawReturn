@@ -5,9 +5,10 @@ import java.util.List;
 
 import backend.Clerk;
 import backend.Inventory;
-import backend.InventoryItem;
 import backend.Purchase;
+import backend.Product;
 import backend.Sale;
+import backend.StoreSystem;
 import backend.Transaction;
 import backend.TransactionManager;
 import backend.User;
@@ -23,7 +24,7 @@ import javafx.scene.layout.*;
 
 public class DashboardView extends HBox{ 
 
-  public DashboardView(Inventory inventory, User user, UserManager users)
+  public DashboardView(Inventory inventory, User user, UserManager users, TransactionManager transactionManager)
   {
     setSpacing(15);
     setPadding(new Insets(15));
@@ -31,7 +32,7 @@ public class DashboardView extends HBox{
     // left column: stock card on top, transactions card below
     VBox main = new VBox(15,
       createStockCard(inventory),
-      createTransactionsCard(user.isManager()));   // only managers see profit
+      createTransactionsCard(user.isManager(), StoreSystem.instance().transactionManager));   // only managers see profit
     HBox.setHgrow(main, Priority.ALWAYS);          // main column takes the extra width
     getChildren().add(main);
 
@@ -42,31 +43,30 @@ public class DashboardView extends HBox{
 
   // TABLE VIEW OF INVENTORY for viewing only
   private VBox createStockCard(Inventory inventory){
-    TableView<InventoryItem> table = new TableView<>();
+    TableView<Product> table = new TableView<>();
     table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);  
     table.setPlaceholder(new Label("No products in inventory.")); // DEFAULT EMPTY
     VBox.setVgrow(table, Priority.ALWAYS);
 
     // each column pulls its value from the InventoryItem / its Product
     // ReadOnly wrappers = cells can't be edited
-    TableColumn<InventoryItem, String> nameCol = new TableColumn<>("Product");
-    nameCol.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getProduct().getName()));
+    TableColumn<Product, String> nameCol = new TableColumn<>("Product");
+    nameCol.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getName()));
 
-    TableColumn<InventoryItem, String> idCol = new TableColumn<>("ID");
-    idCol.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getProduct().getId()));
+    TableColumn<Product, String> idCol = new TableColumn<>("ID");
+    idCol.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getId()));
 
-    TableColumn<InventoryItem, String> priceCol = new TableColumn<>("Price");
-    priceCol.setCellValueFactory(c -> new ReadOnlyStringWrapper("Php " + c.getValue().getProduct().getPrice()));
+    TableColumn<Product, String> priceCol = new TableColumn<>("Price");
+    priceCol.setCellValueFactory(c -> new ReadOnlyStringWrapper("Php " + c.getValue().getPrice()));
 
-    TableColumn<InventoryItem, Integer> stockCol = new TableColumn<>("Stock");
-    stockCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getQuantity()));
+    TableColumn<Product, Integer> stockCol = new TableColumn<>("Stock");
+    stockCol.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(inventory.getProductQuantity(c.getValue())));
 
     table.getColumns().addAll(nameCol, idCol, priceCol, stockCol);
 
     // fill the table 
-    for (InventoryItem item : inventory.getItems()){
+    for (Product item : inventory.getItems())
       table.getItems().add(item);
-    }
 
     VBox box = card("Inventory");
     box.getChildren().addAll(new Label("Currently in stock!"), table);
@@ -74,10 +74,10 @@ public class DashboardView extends HBox{
   }
 
   // NEWEST TRANSACTIONS 
-  private VBox createTransactionsCard(boolean showProfit)
+  private VBox createTransactionsCard(boolean showProfit, TransactionManager transactionManager)
   {
     // walk the history backwards so the newest ones come first
-    List<Transaction> history = TransactionManager.getHistoryList();
+    List<Transaction> history = transactionManager.getHistoryList();
     List<Transaction> recent = new ArrayList<>();
     for (int i = history.size() - 1; i >= 0 && recent.size() < 10; i--)
       recent.add(history.get(i));
@@ -110,7 +110,7 @@ public class DashboardView extends HBox{
 
     VBox box = card("Recent Transactions");
     if (showProfit){   // net = sales minus purchases, managers only
-      box.getChildren().add(new Label(String.format("Net profit: Php %.2f", TransactionManager.calculateProfit())));
+      box.getChildren().add(new Label(String.format("Net profit: Php %.2f", transactionManager.calculateProfit())));
     }
     box.getChildren().add(table);
     return box;

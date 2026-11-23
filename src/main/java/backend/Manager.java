@@ -1,30 +1,26 @@
 package backend;
 
 
-public class Manager extends User {
+public class Manager extends User 
+{
 	
 	// can add products to inventory
 	// restock
 	// 
 
-	public Manager(String username, String password) { 
+	public Manager(String username, String password) 
+  { 
 		super(username, password); 
 	}
-  	@Override public boolean isManager() { 
+
+  @Override public boolean isManager() 
+  { 
 		return true; 
 	}
 	
-	private Inventory inventory;
+	public void addProduct(Product product) { }
 	
-	public void addProduct(Product product, int initialQuantity) {
-		this.inventory.addProduct(product, initialQuantity); 
-		// TODO: INVOLVE A PRODUCT MANAGER CLASS SO THAT THE MANAGER USER CAN INTRODUCE NEW TYPES OF PRODUCTS
-	}
-	
-	public boolean restockProduct(String productId, int amt) {
-		return this.inventory.restockProduct(productId, amt);
-		
-	}
+	public boolean restockProduct(String productId, int amt) { return false; }
 	
 	// TODO: MONITOR SALE HISTORY
 	// TODO: ACCESS TRANSACTION HISTORY

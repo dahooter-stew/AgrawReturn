@@ -5,7 +5,8 @@ import java.io.Serializable;
 // simple product class
 // essentially just a class with attributes
 // + getters & setters
-public class Product implements Serializable {
+public class Product implements Serializable 
+{
   private static final long serialVersionUID = 2L;
 
   private String id;
@@ -65,7 +66,16 @@ public class Product implements Serializable {
   @Override
   public String toString() 
   {
-      return name + " ($" + price + ")";
+      return id + "| " + name + " ($" + price + ")" + "\n> " + description;
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (o instanceof Product other)
+      return id.equals(other.getId()) && name.equals(other.getName());
+    else
+      return false;
   }
 }
 

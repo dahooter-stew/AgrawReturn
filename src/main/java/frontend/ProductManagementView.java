@@ -227,7 +227,7 @@ public class ProductManagementView extends BorderPane
 
    for (Product p : new ArrayList<>(checkedProducts)){
      productManager.removeProduct(p.getId());
-     inventory.removeProduct(p.getId());
+     inventory.removeProduct(p);
    }
    refreshTable();
  }

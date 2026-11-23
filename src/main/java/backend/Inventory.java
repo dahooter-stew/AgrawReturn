@@ -4,69 +4,103 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 // inventory management system
 public class Inventory implements Serializable 
 {
   // for saving into files in the future
-  private static final long serialVersionUID = 3L;
+  private static final long serialVersionUID = 4L;
 
-  private List<InventoryItem> items;
+  private Map<Product, Integer> items;
 
   public Inventory() 
   {
-    this.items = new ArrayList<>();
+    this.items = new HashMap<>();
   }
 
-  public List<InventoryItem> getItems() 
+  public List<Product> getItems() 
   {
-    return items;
+    return new ArrayList<>(items.keySet());
   }
 
-  public void addProduct(Product product, int initialQuantity) 
+  public void addProduct(Product product, int initialQuantity)
   {
-    Optional<InventoryItem> existingItem = findItemById(product.getId());
+    if (product == null || items.containsKey(product) ||
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
+      return;
 
-    if (existingItem.isPresent())
-        existingItem.get().addStock(initialQuantity);
-    else 
-      items.add(new InventoryItem(product, initialQuantity));
+    items.put(product, initialQuantity);
   }
 
-  public boolean removeProduct(String productId) 
+  public boolean removeProduct(Product product) 
   {
-    return items.removeIf(item -> item.getProduct().getId().equalsIgnoreCase(productId));
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
+      return false;
+    
+    return items.remove(product) != null;
   }
 
-  public Optional<InventoryItem> findItemById(String productId) 
+  public Integer getProductQuantity(Product product)
   {
-    return items.stream().filter(item -> item.getProduct().getId().equalsIgnoreCase(productId)).findFirst();
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
+      return null;
+
+    return items.get(product);
   }
 
-  public boolean restockProduct(String productId, int amount) 
-  {
-    Optional<InventoryItem> itemOpt = findItemById(productId);
-
-    if (itemOpt.isPresent()) 
-    {
-      itemOpt.get().addStock(amount);
-      return true;
-    }
-    return false;
-  }
-
-  public boolean updateStockQuantity(String productId, int newQuantity) 
+  private boolean updateStockQuantity(Product product, int newQuantity) 
   {
     if (newQuantity < 0) 
       return false;
 
-    Optional<InventoryItem> itemOpt = findItemById(productId);
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
+      return false;
 
-    if (itemOpt.isPresent()) 
+    return items.replace(product, newQuantity) != null;
+  }
+
+  public boolean restockProduct(Product product, int amount) 
+  {
+    if (amount < 0)
+      return false;
+
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
+      return false;
+    
+    int currentAmount = getProductQuantity(product);
+    return updateStockQuantity(product, currentAmount + amount);
+  }
+
+  public boolean decreaseProduct(Product product, int amount)
+  {
+    if (amount < 0)
+      return false;
+
+    if (product == null || !items.containsKey(product) ||
+        !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
+      return false;
+    
+    int currentAmount = getProductQuantity(product);
+    if (currentAmount - amount < 0)
+      return false;
+    return updateStockQuantity(product, currentAmount - amount);
+  }
+
+  public void printInventory()
+  {
+    System.out.println("=====Inventory=====");
+
+    for (Map.Entry<Product, Integer> pair : items.entrySet())
     {
-      itemOpt.get().setQuantity(newQuantity);
-      return true;
+      System.out.println(pair.getKey().toString() + "|" + pair.getValue().toString());
     }
-    return false;
+
+    System.out.println("===================");
   }
 }

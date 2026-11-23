@@ -4,6 +4,8 @@ import backend.Purchase;
 import backend.Sale;
 import backend.Transaction;
 import backend.TransactionManager;
+import backend.ProductManager;
+import backend.User;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,6 +17,9 @@ import javafx.scene.layout.*;
 
 public class TransactionView extends BorderPane 
 {
+  private TransactionManager transactionManager;
+  private ProductManager productManager;
+  private User user;
 
   private TableView<Transaction> table;
   private ObservableList<Transaction> tableData;
@@ -26,8 +31,12 @@ public class TransactionView extends BorderPane
   private TextField dateField;
   private Label profitLabel;
 
-  public TransactionView(Runnable onLogout) 
+  public TransactionView(Runnable onLogout, TransactionManager transactionManager, ProductManager productManager, User user) 
   {
+    this.transactionManager = transactionManager;
+    this.productManager = productManager;
+    this.user = user;
+
     setPadding(new Insets(15));
     
     // Header with Logout
@@ -42,7 +51,7 @@ public class TransactionView extends BorderPane
     topBar.setPadding(new Insets(0, 0, 10, 0));
     setTop(topBar);
 
-    tableData = FXCollections.observableArrayList(TransactionManager.getHistoryList());
+    tableData = FXCollections.observableArrayList(transactionManager.getHistoryList());
 
     setCenter(createTableSection());
     setRight(createFormSection());
@@ -53,8 +62,8 @@ public class TransactionView extends BorderPane
     table = new TableView<>();
     table.setItems(tableData);
 
-    TableColumn<Transaction, String> idCol = new TableColumn<>("Transaction ID");
-    idCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getId()));
+    TableColumn<Transaction, String> idCol = new TableColumn<>("Product");
+    idCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduct().getName()));
 
     TableColumn<Transaction, String> typeCol = new TableColumn<>("Type");
     typeCol.setCellValueFactory(cell -> new SimpleStringProperty(
@@ -62,7 +71,7 @@ public class TransactionView extends BorderPane
     ));
 
     TableColumn<Transaction, Integer> amountCol = new TableColumn<>("Amount");
-    amountCol.setCellValueFactory(cell -> new SimpleIntegerProperty(cell.getValue().amount()).asObject());
+    amountCol.setCellValueFactory(cell -> new SimpleIntegerProperty(cell.getValue().getAmount()).asObject());
 
     TableColumn<Transaction, Double> priceCol = new TableColumn<>("Price (₱)");
     priceCol.setCellValueFactory(cell -> new SimpleDoubleProperty(cell.getValue().getPrice()).asObject());
@@ -147,12 +156,12 @@ public class TransactionView extends BorderPane
 
       Transaction txn;
       if ("Sale".equalsIgnoreCase(type)) {
-          txn = new Sale(id, amount, price, date);
+          txn = new Sale(productManager.getProductByName(id), amount, date, user);
       } else {
-          txn = new Purchase(id, amount, price, date);
+          txn = new Purchase(productManager.getProductByName(id), amount, date, user);
       }
 
-      TransactionManager.processTransaction(txn);
+      transactionManager.processTransaction(txn);
       refreshTable();
       clearForm();
       handleCalculateProfit();
@@ -164,13 +173,13 @@ public class TransactionView extends BorderPane
 
   private void handleCalculateProfit() 
   {
-    double profit = TransactionManager.calculateProfit();
+    double profit = transactionManager.calculateProfit();
     profitLabel.setText(String.format("Net Profit: ₱%.2f", profit));
   }
 
   private void refreshTable() 
   {
-    tableData.setAll(TransactionManager.getHistoryList());
+    tableData.setAll(transactionManager.getHistoryList());
     table.refresh();
   }
 
