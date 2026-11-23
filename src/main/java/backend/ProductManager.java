@@ -2,6 +2,7 @@ package backend;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ProductManager implements Serializable
 {
@@ -63,4 +64,16 @@ public class ProductManager implements Serializable
 
 		return false;
 	}
+
+  public void printProducts()
+  {
+    System.out.println("=====Product Manager=====");
+
+    for (Product product : products.values())
+    {
+      System.out.println(product.toString());
+    }
+
+    System.out.println("=========================");
+  }
 }

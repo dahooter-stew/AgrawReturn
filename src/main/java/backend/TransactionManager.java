@@ -45,4 +45,16 @@ public class TransactionManager
   {
     return transactionHistory;
   }
+
+  public void printTransactions()
+  {
+    System.out.println("=====Transaction Manager=====");
+
+    for (Transaction transaction : transactionHistory)
+    {
+      System.out.println(transaction.toString());
+    }
+
+    System.out.println("=============================");
+  }
 }

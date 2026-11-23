@@ -63,10 +63,17 @@ public abstract class Transaction implements Serializable
 	public abstract boolean validateTransaction(); // TODO: CHECK IF THE PRODUCT IS PART OF OUR PRODUCT ROSER
 
   @Override
+  public String toString()
+  {
+    return trans_id + " | " + date + " | " + price + " | " + amount + "\n> " + user.toString() + "-" + (this instanceof Purchase ? "Purcahse" : "Sale"); 
+  }
+
+  @Override
   public boolean equals (Object o)
   {
     if (o instanceof Transaction other)
       return trans_id.equals(other.getId()) && (price == other.getPrice()) && (amount == other.getAmount()) && date.equals(other.getDate()) && user.equals(other.getUser());
+
     else
       return false;
   }

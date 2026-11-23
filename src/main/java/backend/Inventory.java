@@ -91,4 +91,16 @@ public class Inventory implements Serializable
       return false;
     return updateStockQuantity(product, currentAmount - amount);
   }
+
+  public void printInventory()
+  {
+    System.out.println("=====Inventory=====");
+
+    for (Map.Entry<Product, Integer> pair : items.entrySet())
+    {
+      System.out.println(pair.getKey().toString() + "|" + pair.getValue().toString());
+    }
+
+    System.out.println("===================");
+  }
 }

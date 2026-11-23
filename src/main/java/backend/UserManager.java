@@ -56,4 +56,16 @@ public class UserManager implements Serializable
           managers.add((Manager) x);  
     return managers;
   }
+
+  public void printUsers()
+  {
+    System.out.println("=====User Manager=====");
+
+    for (User user : users)
+    {
+      System.out.println(user.toString());
+    }
+
+    System.out.println("======================");
+  }
 }

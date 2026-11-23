@@ -29,18 +29,24 @@ public abstract class User implements Serializable
 
 	public String getPassword() 
   {
-		 return password; 
+    return password; 
   }
 
 	public void setUsername(String username) 
   {
-		 this.username = username; 
+	  this.username = username; 
 	}
 
 	public void setPassword(String password) 
   {
 		this.password = password; 
 	}
+
+  @Override
+  public String toString()
+  {
+    return username + " | " + password + " | " + (this instanceof Manager ? "Manager" : "Clerk"); 
+  }
 
   @Override
   public boolean equals(Object o)
