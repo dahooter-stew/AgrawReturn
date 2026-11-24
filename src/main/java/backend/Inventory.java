@@ -1,3 +1,21 @@
+/*************************************************************************
+ *
+ * CMSC 22 PROJECT
+ * Agriculture Data Management System
+ *
+ * AgrawReturn()
+ *
+ * Description:
+ * AgrawReturn() is an organization that aims to address local problems regarding 
+ * fruit wastes by providing services for a) processing of fruit waste to develop 
+ * agricultural-use products and b) distribution of fruit wastes for other 
+ * organizations/parties use.
+ *
+ * By:
+ * Bajade, Jann Alexandrei C.
+ * Sta Romana, Maria Mikaela C.
+ */
+
 package backend;
 
 import java.io.Serializable;
@@ -11,20 +29,25 @@ import java.util.HashMap;
 public class Inventory implements Serializable 
 {
   // for saving into files in the future
-  private static final long serialVersionUID = 4L;
+  private static final long serialVersionUID = 1L;
 
+  // Product and how much left in store
   private Map<Product, Integer> items;
 
+  // Constructor, initializes hashmap
   public Inventory() 
   {
-    this.items = new HashMap<>();
-  }
+    this.items = new HashMap<>(); }
 
+  // returns list of Products in inventory (without amount)
   public List<Product> getItems() 
   {
     return new ArrayList<>(items.keySet());
   }
 
+  // only adds product if not in inventory yet
+  // and product matches the one stored in 
+  // product manager
   public void addProduct(Product product, int initialQuantity)
   {
     if (product == null || items.containsKey(product) ||
@@ -34,6 +57,8 @@ public class Inventory implements Serializable
     items.put(product, initialQuantity);
   }
 
+  // removes only if in inventory, and is stored by 
+  // product manager
   public boolean removeProduct(Product product) 
   {
     if (product == null || !items.containsKey(product) ||
@@ -43,6 +68,7 @@ public class Inventory implements Serializable
     return items.remove(product) != null;
   }
 
+  // returns how much is in storage
   public Integer getProductQuantity(Product product)
   {
     if (product == null || !items.containsKey(product) ||
@@ -52,6 +78,7 @@ public class Inventory implements Serializable
     return items.get(product);
   }
 
+  // overrides current amount
   private boolean updateStockQuantity(Product product, int newQuantity) 
   {
     if (newQuantity < 0) 
@@ -64,6 +91,7 @@ public class Inventory implements Serializable
     return items.replace(product, newQuantity) != null;
   }
 
+  // adds to current amount
   public boolean restockProduct(Product product, int amount) 
   {
     if (amount < 0)
@@ -77,6 +105,7 @@ public class Inventory implements Serializable
     return updateStockQuantity(product, currentAmount + amount);
   }
 
+  // decreases amount
   public boolean decreaseProduct(Product product, int amount)
   {
     if (amount < 0)
@@ -92,6 +121,8 @@ public class Inventory implements Serializable
     return updateStockQuantity(product, currentAmount - amount);
   }
 
+  // if product is no longer in product manager,
+  // remove it
   public void updateInventory()
   {
     for (Product item : items.keySet())
@@ -99,6 +130,7 @@ public class Inventory implements Serializable
         items.remove(item);
   }
 
+  // for debugging
   public void printInventory()
   {
     System.out.println("=====Inventory=====");

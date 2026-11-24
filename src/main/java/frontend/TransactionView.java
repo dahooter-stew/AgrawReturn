@@ -26,6 +26,7 @@ import java.util.List;
 
 public class TransactionView extends BorderPane 
 {
+  // Attributes
   private final TransactionManager transactionManager;
   private final Inventory inventory;
   private final User user;
@@ -51,6 +52,7 @@ public class TransactionView extends BorderPane
   private TextField dateField;
   private Label totalValueLabel;
 
+  // init
   public TransactionView(Runnable onLogout, TransactionManager transactionManager, Inventory inventory, User user) 
   {
     this.transactionManager = transactionManager;
@@ -67,6 +69,7 @@ public class TransactionView extends BorderPane
     handleCalculateProfit();
   }
 
+  // the table and the balance on top
   private VBox createLeftFinanceSection() 
   {
     VBox container = new VBox(16);
@@ -75,6 +78,7 @@ public class TransactionView extends BorderPane
     Label titleLabel = new Label("Finances & Transaction");
     titleLabel.getStyleClass().add("page-title");
 
+    // balance
     HBox balanceCard = new HBox(15);
     balanceCard.setAlignment(Pos.CENTER_LEFT);
     balanceCard.getStyleClass().add("balance-card");
@@ -96,17 +100,29 @@ public class TransactionView extends BorderPane
 
     balanceCard.getChildren().addAll(balanceTextBox, spacer, btnCalcProfit);
 
+    // the transaction history
     TabPane tabPane = new TabPane();
     tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
     VBox.setVgrow(tabPane, Priority.ALWAYS);
 
+    // filter by sale or purchase
+    // if manager all transactions are visible
+    // if clerk only own transactions are available
     FilteredList<Transaction> allFiltered;
+    FilteredList<Transaction> salesFiltered;
+    FilteredList<Transaction> purchasesFiltered;
     if (user instanceof Clerk)
+    {
       allFiltered = new FilteredList<>(masterData, t -> t.getUser().equals(user));
+      salesFiltered = new FilteredList<>(masterData, t -> t instanceof Sale && t.getUser() == user);
+      purchasesFiltered = new FilteredList<>(masterData, t -> t instanceof Purchase && t.getUser() == user);
+    }
     else
+    {
       allFiltered = new FilteredList<>(masterData, t -> true);
-    FilteredList<Transaction> salesFiltered = new FilteredList<>(masterData, t -> t instanceof Sale);
-    FilteredList<Transaction> purchasesFiltered = new FilteredList<>(masterData, t -> t instanceof Purchase);
+      salesFiltered = new FilteredList<>(masterData, t -> t instanceof Sale);
+      purchasesFiltered = new FilteredList<>(masterData, t -> t instanceof Purchase);
+    }
 
     Tab allTab = new Tab("All Transactions", buildTransactionTable(allFiltered, true, true));
     Tab salesTab = new Tab("Sales", buildTransactionTable(salesFiltered, false, false));
@@ -118,6 +134,7 @@ public class TransactionView extends BorderPane
     return container;
   }
 
+  // the forms for recording new transactions
   private TableView<Transaction> buildTransactionTable(FilteredList<Transaction> data, boolean showTypeCol, boolean showSourceCol) 
   {
     TableView<Transaction> table = new TableView<>(data);
@@ -170,6 +187,7 @@ public class TransactionView extends BorderPane
     return table;
   }
 
+  // for recording transactions
   private VBox createFormSection() 
   {
     VBox form = new VBox(9);
@@ -273,6 +291,7 @@ public class TransactionView extends BorderPane
     totalSummaryBox.setAlignment(Pos.CENTER_LEFT);
     totalSummaryBox.getStyleClass().add("total-bar");
 
+    // Just sets if it's Sale or Purchase transaction type
     typeBox.valueProperty().addListener((obs, oldVal, newVal) -> {
       boolean isPurchase = "Purchase".equalsIgnoreCase(newVal);
 
@@ -311,6 +330,7 @@ public class TransactionView extends BorderPane
     return form;
   }
 
+  // utility, label and field sidebyside
   private VBox createLabeledField(String labelText, Control inputControl) 
   {
     Label label = new Label(labelText);
@@ -318,6 +338,7 @@ public class TransactionView extends BorderPane
     return new VBox(3, label, inputControl);
   }
 
+  // previews calculated price
   private void updateTotalPreview() 
   {
     try 
@@ -354,6 +375,7 @@ public class TransactionView extends BorderPane
     }
   }
 
+  // wrapper for TransactionManager
   private void handleProcessTransaction() 
   {
     try 
@@ -436,10 +458,13 @@ public class TransactionView extends BorderPane
     profitLabel.setText(String.format("PHP %,.2f", profit));
   }
 
+  // clear 
+  
   private void refreshTables() 
   {
     masterData.setAll(transactionManager.getHistoryList());
   }
+
 
   private void refreshProductDropdown() 
   {
@@ -466,6 +491,7 @@ public class TransactionView extends BorderPane
     totalValueLabel.setText("₱0.00");
   }
 
+  // For popups when something is awry
   private void showAlert(Alert.AlertType type, String title, String content) 
   {
     Alert alert = new Alert(type);

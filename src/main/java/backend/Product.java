@@ -1,3 +1,21 @@
+/*************************************************************************
+ *
+ * CMSC 22 PROJECT
+ * Agriculture Data Management System
+ *
+ * AgrawReturn()
+ *
+ * Description:
+ * AgrawReturn() is an organization that aims to address local problems regarding 
+ * fruit wastes by providing services for a) processing of fruit waste to develop 
+ * agricultural-use products and b) distribution of fruit wastes for other 
+ * organizations/parties use.
+ *
+ * By:
+ * Bajade, Jann Alexandrei C.
+ * Sta Romana, Maria Mikaela C.
+ */
+
 package backend;
 
 import java.io.Serializable;
@@ -5,15 +23,21 @@ import java.io.Serializable;
 // simple product class
 // essentially just a class with attributes
 // + getters & setters
+// Just stores Product information, Product objects stored by
+// ProductManager are products officially registered by our 
+// company (we are selling). However we also use Product to 
+// record the company purchasing from other companies.
 public class Product implements Serializable 
 {
-  private static final long serialVersionUID = 2L;
+  private static final long serialVersionUID = 1L;
 
+  // Attributes
   private String id;
   private String name;
   private String description;
   private double price;
 
+  // Constructor
   public Product(String id, String name, String description, double price) 
   {
     this.id = id;
@@ -63,6 +87,7 @@ public class Product implements Serializable
     this.price = price; 
   }
 
+  // Java Object Overrides, for debugging
   @Override
   public String toString() 
   {
