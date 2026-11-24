@@ -15,18 +15,15 @@ public class Inventory implements Serializable
 
   private Map<Product, Integer> items;
 
-  public Inventory() 
-  {
+  public Inventory() {
     this.items = new HashMap<>();
   }
 
-  public List<Product> getItems() 
-  {
+  public List<Product> getItems() {
     return new ArrayList<>(items.keySet());
   }
 
-  public void addProduct(Product product, int initialQuantity)
-  {
+  public void addProduct(Product product, int initialQuantity){
     if (product == null || items.containsKey(product) ||
         !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return;
@@ -34,8 +31,7 @@ public class Inventory implements Serializable
     items.put(product, initialQuantity);
   }
 
-  public boolean removeProduct(Product product) 
-  {
+  public boolean removeProduct(Product product) {
     if (product == null || !items.containsKey(product) ||
         !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return false;
@@ -43,8 +39,7 @@ public class Inventory implements Serializable
     return items.remove(product) != null;
   }
 
-  public Integer getProductQuantity(Product product)
-  {
+  public Integer getProductQuantity(Product product){
     if (product == null || !items.containsKey(product) ||
         !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return null;
@@ -52,8 +47,7 @@ public class Inventory implements Serializable
     return items.get(product);
   }
 
-  private boolean updateStockQuantity(Product product, int newQuantity) 
-  {
+  private boolean updateStockQuantity(Product product, int newQuantity) {
     if (newQuantity < 0) 
       return false;
 
@@ -64,8 +58,7 @@ public class Inventory implements Serializable
     return items.replace(product, newQuantity) != null;
   }
 
-  public boolean restockProduct(Product product, int amount) 
-  {
+  public boolean restockProduct(Product product, int amount) {
     if (amount < 0)
       return false;
 
@@ -77,8 +70,7 @@ public class Inventory implements Serializable
     return updateStockQuantity(product, currentAmount + amount);
   }
 
-  public boolean decreaseProduct(Product product, int amount)
-  {
+  public boolean decreaseProduct(Product product, int amount){
     if (amount < 0)
       return false;
 
@@ -92,11 +84,8 @@ public class Inventory implements Serializable
     return updateStockQuantity(product, currentAmount - amount);
   }
 
-  public void updateInventory()
-  {
-    for (Product item : items.keySet())
-      if (!StoreSystem.instance().productManager.hasProduct(item))
-        items.remove(item);
+  public void updateInventory(){
+    items.keySet().removeIf(item -> !StoreSystem.instance().productManager.hasProduct(item));
   }
 
   public void printInventory()
