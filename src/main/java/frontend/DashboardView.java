@@ -19,10 +19,12 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+// THE DASHBOARD VIEW IS WHAT U SEE WHEN U OPEN
+// THIS LOWKEY LOOKS DIFFERENT DEPENDING IF YOU LOGGED IN AS MANAGER OR CLERK 
+
 public class DashboardView extends VBox
 {
-  public DashboardView(Inventory inventory, User user, UserManager users, TransactionManager transactionManager)
-  {
+  public DashboardView(Inventory inventory, User user, UserManager users, TransactionManager transactionManager){
     getStyleClass().add("page-container");
 
     VBox shell = new VBox(16);
@@ -43,15 +45,15 @@ public class DashboardView extends VBox
     columns.getChildren().add(main);
 
     if (user.isManager()) {
-      columns.getChildren().add(createClerksCard(users));
+      columns.getChildren().add(createClerksCard(users)); // MANAGERS HAVE A CLERK CARD IN THE DASHBOARD
     }
-
     shell.getChildren().addAll(welcome, columns);
     getChildren().add(shell);
   }
 
-  private VBox createStockCard(Inventory inventory)
-  {
+  // inventory is seen in the dashboard
+
+  private VBox createStockCard(Inventory inventory) {
     TableView<Product> table = new TableView<>();
     table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     table.setPlaceholder(new Label("No products in inventory."));
@@ -83,11 +85,12 @@ public class DashboardView extends VBox
     return box;
   }
 
-  private VBox createTransactionsCard(boolean showProfit, TransactionManager transactionManager)
-  {
+  // recent transaxctions are seen in the dashboard
+
+  private VBox createTransactionsCard(boolean showProfit, TransactionManager transactionManager) {
     List<Transaction> history = transactionManager.getHistoryList();
     List<Transaction> recent = new ArrayList<>();
-    for (int i = history.size() - 1; i >= 0 && recent.size() < 10; i--) {
+    for (int i = history.size() - 1; i >= 0 && recent.size() < 10; i--) { // recent ones are shown...
       recent.add(history.get(i));
     }
 
@@ -117,7 +120,7 @@ public class DashboardView extends VBox
 
     VBox box = card("Recent Transactions");
     if (showProfit) {
-      Label profit = new Label(String.format("Net profit: Php %.2f", transactionManager.calculateProfit()));
+      Label profit = new Label(String.format("Net profit: Php %.2f", transactionManager.calculateProfit())); // shows da profit as well
       profit.getStyleClass().add("row-tag");
       box.getChildren().add(profit);
     }
@@ -125,22 +128,19 @@ public class DashboardView extends VBox
     return box;
   }
 
-  private VBox createClerksCard(UserManager users)
-  {
+  private VBox createClerksCard(UserManager users){ // the clerk card special for manager
     ListView<String> clerks = new ListView<>();
     VBox.setVgrow(clerks, Priority.ALWAYS);
     for (Clerk clerk : users.getClerks()) {
       clerks.getItems().add(clerk.getUsername());
     }
-
     VBox box = card("Clerks");
     box.getChildren().add(clerks);
     box.setPrefWidth(220);
     return box;
   }
 
-  private VBox card(String title)
-  {
+  private VBox card(String title){
     Label t = new Label(title);
     t.getStyleClass().add("card-title");
 

@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// FEATURE 1: INVENTORY MANAGEMENT VIEW, ALLOWS MANAGERS & CLERKS TO ACCESS INVENTORY AND STOCKS
+
 public class InventoryManagementView extends BorderPane 
 {
   private Inventory inventory;
@@ -398,7 +400,7 @@ public class InventoryManagementView extends BorderPane
     return box;
   }
 
-  // NOTE IT IS STATIC SO OTHER TABS MAY HIDE UNAVAILABLE / UNLISTED ITEMS
+  // NOTE IT IS STATIC SO OTHER TABS MAY HIDE UNAVAILABLE / UNLISTED ITEMS TOO
   public static String getAvailability(String id) 
   {
     return availability.getOrDefault(id, "Available");
@@ -430,7 +432,6 @@ public class InventoryManagementView extends BorderPane
     for (Product item : matches) {
       rowsBox.getChildren().add(createRow(item));
     }
-
     updateHeaderButton();
   }
 

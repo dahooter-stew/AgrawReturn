@@ -24,6 +24,7 @@ import java.util.List;
 
 public class MainView extends BorderPane
 {
+  // PIC FILES
   private static final String LOGO_FILE = "/main/resources/LOGO.png";
   private static final String LOGO_DISK_PATH = "src/main/java/main/resources/LOGO.png";
 
@@ -38,8 +39,9 @@ public class MainView extends BorderPane
 
   private final List<Button> navButtons = new ArrayList<>();
 
-  public MainView(User user, UserManager users, Inventory inventory, ProductManager productManager, TransactionManager transactionManager, Runnable onLogout)
-  {
+  // MAINVIEW IS FOR SIDEBAR FUNCTIONALITY
+
+  public MainView(User user, UserManager users, Inventory inventory, ProductManager productManager, TransactionManager transactionManager, Runnable onLogout){
     this.user = user;
     this.users = users;
     this.inventory = inventory;
@@ -53,8 +55,7 @@ public class MainView extends BorderPane
     showOverview();
   }
 
-  private Node createLogo()
-  {
+  private Node createLogo() {
     Image img = null;
 
     try (InputStream in = getClass().getResourceAsStream(LOGO_FILE)) {
@@ -70,7 +71,7 @@ public class MainView extends BorderPane
       }
     }
 
-    if (img == null || img.isError()) {
+    if (img == null || img.isError()) { // JUST SHOWS TEXT INCASE LOGO FAILS TO SHOW
       Label fallback = new Label("AgrawReturn()");
       fallback.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F5F0E6;");
       return fallback;
@@ -87,8 +88,7 @@ public class MainView extends BorderPane
     return logoBox;
   }
 
-  private VBox createSidebar()
-  {
+  private VBox createSidebar(){
     Node logo = createLogo();
 
     Separator sep = new Separator();
@@ -111,20 +111,18 @@ public class MainView extends BorderPane
     sidebar.getStyleClass().add("sidebar");
     sidebar.setAlignment(Pos.TOP_LEFT);
 
-    if (user instanceof Manager)
-    {
+    // sidebar looks diff depending on what type of user
+    if (user instanceof Manager){
       Button overview = navButton("OVERVIEW", this::showOverview);
       Button products = navButton("PRODUCTS", () -> setContent(new ProductManagementView(productManager, inventory)));
       Button inv = navButton("INVENTORY", () -> setContent(new InventoryManagementView(inventory, productManager)));
       Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {}, transactionManager, inventory, user)));
       Button clerks = navButton("CLERKS", () -> setContent(new ClerksView(users)));
-      Button extra = navButton("CHAT", () -> setContent(new PlaceholderView("Chat")));
 
-      sidebar.getChildren().addAll(logo, overview, products, inv, transactions, clerks, extra, spacer, sep, accountLabel, logout);
+      sidebar.getChildren().addAll(logo, overview, products, inv, transactions, clerks, spacer, sep, accountLabel, logout);
       return sidebar;
     }
-    else if (user instanceof Clerk)
-    {
+    else if (user instanceof Clerk){
       Button overview = navButton("OVERVIEW", this::showOverview);
       Button inv = navButton("INVENTORY", () -> setContent(new InventoryManagementView(inventory, productManager)));
       Button transactions = navButton("TRANSACTIONS", () -> setContent(new TransactionView(() -> {}, transactionManager, inventory, user)));
@@ -136,8 +134,7 @@ public class MainView extends BorderPane
     return null;
   }
 
-  private Button navButton(String text, Runnable action)
-  {
+  private Button navButton(String text, Runnable action){ // A BUTTON THAT TAKES U PLACES
     Button b = new Button(text);
     b.setMaxWidth(Double.MAX_VALUE);
     b.setAlignment(Pos.CENTER_LEFT);
@@ -150,16 +147,14 @@ public class MainView extends BorderPane
     return b;
   }
 
-  private void setActiveNav(Button active)
-  {
+  private void setActiveNav(Button active){
     for (Button b : navButtons) {
       b.getStyleClass().removeAll("nav-btn", "nav-btn-active");
       b.getStyleClass().add(b == active ? "nav-btn-active" : "nav-btn");
     }
   }
 
-  private void showOverview()
-  {
+  private void showOverview(){ // BUTTONS FOR OVERVIEW
     for (Button b : navButtons) {
       if (b.getText().equals("OVERVIEW")) {
         setActiveNav(b);
@@ -169,8 +164,7 @@ public class MainView extends BorderPane
     setContent(new DashboardView(inventory, user, users, transactionManager));
   }
 
-  private void setContent(Node view)
-  {
+  private void setContent(Node view){
     setCenter(view);
   }
 }
