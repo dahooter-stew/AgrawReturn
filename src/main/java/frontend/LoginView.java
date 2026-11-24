@@ -1,6 +1,7 @@
 package frontend;
 
 import backend.User;
+import backend.Manager;
 import backend.UserManager;
 
 import javafx.geometry.Insets;
@@ -10,6 +11,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.function.Consumer;
 
+// just a simple login screen
 public class LoginView extends VBox
 {
   private final UserManager users;
@@ -23,8 +25,6 @@ public class LoginView extends VBox
   {
     this.users = users;
     this.onLogin = onLogin;
-
-    users.printUsers();
 
     setSpacing(12);
     setPadding(new Insets(32));
@@ -68,7 +68,7 @@ public class LoginView extends VBox
     if (user == null) {
       errorLabel.setText("Wrong username or password.");
       passField.clear();
-    } else if (user.isManager() != asManager) {
+    } else if (user instanceof Manager != asManager) {
       errorLabel.setText("Wrong log-in for account type!");
       passField.clear();
     } else {

@@ -1,9 +1,8 @@
 /* =========================================================
-   AgrawReturn() Theme Palette
-   Forest Green : #1E3B2F
-   Sage Olive   : #7F8C6A
-   Warm Sand    : #C8B48A
-   Warm Cream   : #F5F0E6
+   #1E3B2F
+   #7F8C6A
+   #C8B48A
+   #F5F0E6
    ========================================================= */
 
 .root {
@@ -12,7 +11,6 @@
     -fx-text-fill: #1E3B2F;
 }
 
-/* ==================== SIDEBAR (MainView) ==================== */
 .sidebar {
     -fx-background-color: #7F8C6A;
     -fx-padding: 22 18 22 18;
@@ -68,13 +66,11 @@
     -fx-background-color: rgba(30, 59, 47, 0.18);
 }
 
-/* ==================== CONTAINERS & CARDS ==================== */
 .page-container {
     -fx-background-color: #F5F0E6;
     -fx-padding: 22;
 }
 
-/* White rounded sheet matching Inventory, Products, and Dashboard mockups */
 .sheet-card {
     -fx-background-color: #FFFFFF;
     -fx-background-radius: 20;
@@ -85,7 +81,6 @@
     -fx-effect: dropshadow(three-pass-box, rgba(30, 59, 47, 0.07), 10, 0, 0, 3);
 }
 
-/* Warm cream-sand outer shell matching Dashboard & Finance mockups */
 .warm-shell {
     -fx-background-color: #EFE8D8;
     -fx-background-radius: 22;
@@ -121,7 +116,6 @@
     -fx-padding: 7 12 7 12;
 }
 
-/* ==================== TYPOGRAPHY ==================== */
 .page-title {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
@@ -157,7 +151,6 @@
     -fx-text-fill: #1E3B2F;
 }
 
-/* ==================== INPUTS & SEARCH PILL ==================== */
 .text-field, .password-field, .combo-box {
     -fx-background-color: #FFFFFF;
     -fx-border-color: #C8B48A;
@@ -184,7 +177,6 @@
     -fx-text-fill: #1E3B2F;
 }
 
-/* ==================== BUTTONS ==================== */
 .btn-olive-pill {
     -fx-background-color: #7F8C6A;
     -fx-text-fill: #FFFFFF;
@@ -267,7 +259,6 @@
     -fx-text-fill: #1E3B2F;
 }
 
-/* ==================== INVENTORY & PRODUCT ROWS ==================== */
 .clean-scroll {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -306,7 +297,6 @@
     -fx-font-weight: bold;
 }
 
-/* ==================== TABLES & LIST VIEWS ==================== */
 .table-view {
     -fx-background-color: #FFFFFF;
     -fx-border-color: #C8B48A;
@@ -365,7 +355,6 @@
     -fx-text-fill: #FFFFFF;
 }
 
-/* ==================== TABS (TransactionView) ==================== */
 .tab-pane .tab-header-area .tab-header-background {
     -fx-background-color: transparent;
 }
@@ -392,7 +381,6 @@
     -fx-font-weight: bold;
 }
 
-/* ==================== CHECKBOX & DIALOGS ==================== */
 .check-box .box {
     -fx-background-color: #FFFFFF;
     -fx-border-color: #1E3B2F;

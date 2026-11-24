@@ -47,7 +47,7 @@ public class MainView extends BorderPane
     this.transactionManager = transactionManager;
 
     this.onLogout = onLogout;
-    this.isManager = user.isManager();
+    this.isManager = user instanceof Manager;
 
     setLeft(createSidebar());
     showOverview();

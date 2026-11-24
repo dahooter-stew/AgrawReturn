@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import backend.Clerk;
+import backend.Manager;
 import backend.Inventory;
 import backend.Purchase;
 import backend.Product;
@@ -37,12 +38,12 @@ public class DashboardView extends VBox
 
     VBox main = new VBox(16,
       createStockCard(inventory),
-      createTransactionsCard(user.isManager(), StoreSystem.instance().transactionManager)
+      createTransactionsCard(user instanceof Manager, StoreSystem.instance().transactionManager)
     );
     HBox.setHgrow(main, Priority.ALWAYS);
     columns.getChildren().add(main);
 
-    if (user.isManager()) {
+    if (user instanceof Manager) {
       columns.getChildren().add(createClerksCard(users));
     }
 
