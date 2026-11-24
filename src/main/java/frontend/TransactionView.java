@@ -9,6 +9,7 @@ import backend.TransactionManager;
 import backend.User;
 import backend.Clerk;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -124,13 +125,50 @@ public class TransactionView extends BorderPane
       purchasesFiltered = new FilteredList<>(masterData, t -> t instanceof Purchase);
     }
 
-    Tab allTab = new Tab("All Transactions", buildTransactionTable(allFiltered, true, true));
-    Tab salesTab = new Tab("Sales", buildTransactionTable(salesFiltered, false, false));
-    Tab purchasesTab = new Tab("Purchases", buildTransactionTable(purchasesFiltered, false, true));
+    TableView<Transaction> allTable = buildTransactionTable(allFiltered, true, true);
+    TableView<Transaction> salesTable = buildTransactionTable(salesFiltered, false, false);
+    TableView<Transaction> purchasesTable = buildTransactionTable(purchasesFiltered, false, true);
+
+    Tab allTab = new Tab("All Transactions", allTable);
+    Tab salesTab = new Tab("Sales", salesTable);
+    Tab purchasesTab = new Tab("Purchases", purchasesTable);
 
     tabPane.getTabs().addAll(allTab, salesTab, purchasesTab);
 
-    container.getChildren().addAll(titleLabel, balanceCard, tabPane);
+    // remove selected transaction button
+    Button btnRemoveTxn = new Button("Remove Selected Transaction");
+    btnRemoveTxn.setMaxWidth(Double.MAX_VALUE);
+    btnRemoveTxn.getStyleClass().add("btn-danger-pill");
+    btnRemoveTxn.disableProperty().bind(Bindings.createBooleanBinding(() -> {
+      Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+      if (selectedTab != null && selectedTab.getContent() instanceof TableView<?> table)
+      {
+        return table.getSelectionModel().getSelectedItem() == null;
+      }
+      return true;
+    },
+      tabPane.getSelectionModel().selectedItemProperty(),
+      allTable.getSelectionModel().selectedItemProperty(),
+      salesTable.getSelectionModel().selectedItemProperty(),
+      purchasesTable.getSelectionModel().selectedItemProperty()
+    ));
+
+    btnRemoveTxn.setOnAction(e -> {
+      Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+      if (selectedTab != null && selectedTab.getContent() instanceof TableView<?> table)
+      {
+        Object selectedItem = table.getSelectionModel().getSelectedItem();
+        if (selectedItem instanceof Transaction selectedTxn)
+        {
+          transactionManager.removeTransaction(selectedTxn);
+          refreshTables();
+          refreshProductDropdown();
+          handleCalculateProfit();
+        }
+      }
+    });
+
+    container.getChildren().addAll(titleLabel, balanceCard, tabPane, btnRemoveTxn);
     return container;
   }
 
@@ -459,12 +497,10 @@ public class TransactionView extends BorderPane
   }
 
   // clear 
-  
   private void refreshTables() 
   {
     masterData.setAll(transactionManager.getHistoryList());
   }
-
 
   private void refreshProductDropdown() 
   {
