@@ -26,8 +26,6 @@ public class Main extends Application
   {
     this.primaryStage = primaryStage;
 
-    StoreSystem.instance().loadFromFile("src/main/java/data/hehe.ser");
-
     showLoginScreen();
     primaryStage.setTitle("Store Management System");
     primaryStage.show();
@@ -83,6 +81,8 @@ public class Main extends Application
 
   public static void main(String[] args)
   {
+    StoreSystem.instance().loadFromFile("src/main/java/data/hehe.ser");
+
     launch(args);
 
     try 
