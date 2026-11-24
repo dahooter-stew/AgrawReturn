@@ -8,7 +8,6 @@ import backend.Transaction;
 import backend.TransactionManager;
 import backend.User;
 import backend.Clerk;
-import backend.Manager;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -36,22 +35,18 @@ public class TransactionView extends BorderPane
 
   private ComboBox<String> typeBox;
 
-  // Sale product selector (from Inventory)
   private VBox saleProductBox;
   private ComboBox<Product> productBox;
 
-  // Purchase product fields (matches Product(id, name, description, price))
   private VBox purchaseProductBox;
   private TextField idField;
   private TextField nameField;
   private TextField descriptionField;
   private TextField priceField;
 
-  // Purchase-only transaction field
   private VBox sourceBox;
   private TextField sourceField;
 
-  // Shared transaction fields
   private TextField amountField;
   private TextField dateField;
   private Label totalValueLabel;
@@ -62,8 +57,7 @@ public class TransactionView extends BorderPane
     this.inventory = inventory;
     this.user = user;
 
-    setPadding(new Insets(18));
-    setStyle("-fx-background-color: #f8fafc;");
+    getStyleClass().add("page-container");
 
     masterData = FXCollections.observableArrayList(transactionManager.getHistoryList());
 
@@ -76,52 +70,32 @@ public class TransactionView extends BorderPane
   private VBox createLeftFinanceSection() 
   {
     VBox container = new VBox(16);
-    container.setPadding(new Insets(22));
-    container.setStyle(
-      "-fx-background-color: #cbd5dc;" +
-      "-fx-background-radius: 20;"
-    );
+    container.getStyleClass().add("warm-shell");
 
     Label titleLabel = new Label("Finances & Transaction");
-    titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
+    titleLabel.getStyleClass().add("page-title");
 
-    // Top Balance / Net Profit card
     HBox balanceCard = new HBox(15);
     balanceCard.setAlignment(Pos.CENTER_LEFT);
-    balanceCard.setPadding(new Insets(18, 22, 18, 22));
-    balanceCard.setStyle(
-      "-fx-background-color: white;" +
-      "-fx-background-radius: 16;" +
-      "-fx-border-color: #64748b;" +
-      "-fx-border-radius: 16;" +
-      "-fx-border-width: 1;"
-    );
+    balanceCard.getStyleClass().add("balance-card");
 
     VBox balanceTextBox = new VBox(4);
     Label balanceTitle = new Label("Net Profit / Current Balance");
-    balanceTitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #475569;");
+    balanceTitle.getStyleClass().add("muted-label");
 
     profitLabel = new Label("PHP 0.00");
-    profitLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+    profitLabel.getStyleClass().add("balance-amount");
     balanceTextBox.getChildren().addAll(balanceTitle, profitLabel);
 
     Region spacer = new Region();
     HBox.setHgrow(spacer, Priority.ALWAYS);
 
     Button btnCalcProfit = new Button("Calculate Total Profit");
-    btnCalcProfit.setStyle(
-      "-fx-background-color: #6c7c8c;" +
-      "-fx-text-fill: white;" +
-      "-fx-font-weight: bold;" +
-      "-fx-background-radius: 20;" +
-      "-fx-padding: 8 18;" +
-      "-fx-cursor: hand;"
-    );
+    btnCalcProfit.getStyleClass().add("btn-olive-pill");
     btnCalcProfit.setOnAction(e -> handleCalculateProfit());
 
     balanceCard.getChildren().addAll(balanceTextBox, spacer, btnCalcProfit);
 
-    // Filtered Tabs for All, Sales, and Purchases
     TabPane tabPane = new TabPane();
     tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
     VBox.setVgrow(tabPane, Priority.ALWAYS);
@@ -198,24 +172,24 @@ public class TransactionView extends BorderPane
 
   private VBox createFormSection() 
   {
-    VBox form = new VBox(12);
-    form.setPadding(new Insets(6, 0, 6, 18));
-    form.setPrefWidth(310);
+    VBox form = new VBox(9);
+    form.setPadding(new Insets(4, 0, 4, 14));
+    form.setPrefWidth(235);
+    form.setMinWidth(220);
+    form.setMaxWidth(240);
 
-    Label formTitle = new Label("Record New Transaction");
-    formTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #1e293b;");
+    Label formTitle = new Label("Record Transaction");
+    formTitle.getStyleClass().add("card-title");
 
-    // 1. Transaction Type
     typeBox = new ComboBox<>();
     typeBox.getItems().addAll("Sale", "Purchase");
     typeBox.setValue("Sale");
     typeBox.setMaxWidth(Double.MAX_VALUE);
     VBox typeGroup = createLabeledField("Transaction Type", typeBox);
 
-    // 2A. Sale Product Dropdown (from Inventory)
     productBox = new ComboBox<>();
     productBox.setMaxWidth(Double.MAX_VALUE);
-    productBox.setPromptText("Select product from inventory...");
+    productBox.setPromptText("Select product...");
     productBox.setConverter(new StringConverter<>() 
     {
       @Override
@@ -224,7 +198,7 @@ public class TransactionView extends BorderPane
         if (product == null) return "";
         Integer stock = inventory.getProductQuantity(product);
         int qty = (stock != null) ? stock : 0;
-        return String.format("%s (Stock: %d) - ₱%.2f", product.getName(), qty, product.getPrice());
+        return String.format("%s (%d) - ₱%.2f", product.getName(), qty, product.getPrice());
       }
 
       @Override
@@ -236,18 +210,17 @@ public class TransactionView extends BorderPane
     refreshProductDropdown();
     saleProductBox = createLabeledField("Product", productBox);
 
-    // 2B. Purchase Product Card: strictly ordered (id, name, description, price)
     Label productCardHeader = new Label("Product Details");
-    productCardHeader.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;");
+    productCardHeader.getStyleClass().add("field-label");
 
     idField = new TextField();
-    idField.setPromptText("e.g., 2026-10105");
+    idField.setPromptText("2026-101");
 
     nameField = new TextField();
-    nameField.setPromptText("e.g., Brown Rice");
+    nameField.setPromptText("Rice");
 
     HBox idAndNameRow = new HBox(
-      8,
+      6,
       createLabeledField("ID", idField),
       createLabeledField("Name", nameField)
     );
@@ -262,58 +235,44 @@ public class TransactionView extends BorderPane
     priceField.setPromptText("e.g., 250.00");
     VBox priceGroup = createLabeledField("Price (₱)", priceField);
 
-    purchaseProductBox = new VBox(8, productCardHeader, idAndNameRow, descGroup, priceGroup);
-    purchaseProductBox.setPadding(new Insets(10));
-    purchaseProductBox.setStyle(
-      "-fx-background-color: #eef2f6;" +
-      "-fx-background-radius: 10;" +
-      "-fx-border-color: #cbd5e1;" +
-      "-fx-border-radius: 10;"
-    );
+    purchaseProductBox = new VBox(6, productCardHeader, idAndNameRow, descGroup, priceGroup);
+    purchaseProductBox.getStyleClass().add("sub-card");
     purchaseProductBox.setVisible(false);
     purchaseProductBox.setManaged(false);
 
-    // 3. Purchase-only Source Field
     sourceField = new TextField();
-    sourceField.setPromptText("e.g., Fresh Farms Supplier");
+    sourceField.setPromptText("e.g., Fresh Farms");
     sourceBox = createLabeledField("Source", sourceField);
     sourceBox.setVisible(false);
     sourceBox.setManaged(false);
 
-    // 4. Shared Amount & Date Row
     amountField = new TextField();
-    amountField.setPromptText("e.g., 5");
+    amountField.setPromptText("5");
 
     dateField = new TextField();
     dateField.setPromptText(LocalDate.now().toString());
 
     HBox amountAndDateRow = new HBox(
-      8,
+      6,
       createLabeledField("Amount", amountField),
       createLabeledField("Date", dateField)
     );
     HBox.setHgrow(amountAndDateRow.getChildren().get(0), Priority.ALWAYS);
     HBox.setHgrow(amountAndDateRow.getChildren().get(1), Priority.ALWAYS);
 
-    // 5. Total Price Summary Row
-    Label totalTitleLabel = new Label("Total Price:");
-    totalTitleLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #475569;");
+    Label totalTitleLabel = new Label("Total:");
+    totalTitleLabel.getStyleClass().add("field-label");
 
     totalValueLabel = new Label("₱0.00");
-    totalValueLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+    totalValueLabel.getStyleClass().add("row-title");
 
     Region totalSpacer = new Region();
     HBox.setHgrow(totalSpacer, Priority.ALWAYS);
 
     HBox totalSummaryBox = new HBox(totalTitleLabel, totalSpacer, totalValueLabel);
     totalSummaryBox.setAlignment(Pos.CENTER_LEFT);
-    totalSummaryBox.setPadding(new Insets(8, 12, 8, 12));
-    totalSummaryBox.setStyle(
-      "-fx-background-color: #e2e8f0;" +
-      "-fx-background-radius: 8;"
-    );
+    totalSummaryBox.getStyleClass().add("total-bar");
 
-    // Toggle Sale vs Purchase inputs
     typeBox.valueProperty().addListener((obs, oldVal, newVal) -> {
       boolean isPurchase = "Purchase".equalsIgnoreCase(newVal);
 
@@ -335,15 +294,7 @@ public class TransactionView extends BorderPane
 
     Button btnProcess = new Button("Process Transaction");
     btnProcess.setMaxWidth(Double.MAX_VALUE);
-    btnProcess.setStyle(
-      "-fx-background-color: #27ae60;" +
-      "-fx-text-fill: white;" +
-      "-fx-font-weight: bold;" +
-      "-fx-font-size: 13px;" +
-      "-fx-background-radius: 8;" +
-      "-fx-padding: 10 14;" +
-      "-fx-cursor: hand;"
-    );
+    btnProcess.getStyleClass().add("btn-forest");
     btnProcess.setOnAction(e -> handleProcessTransaction());
 
     form.getChildren().addAll(
@@ -363,9 +314,8 @@ public class TransactionView extends BorderPane
   private VBox createLabeledField(String labelText, Control inputControl) 
   {
     Label label = new Label(labelText);
-    label.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;");
-    VBox group = new VBox(4, label, inputControl);
-    return group;
+    label.getStyleClass().add("field-label");
+    return new VBox(3, label, inputControl);
   }
 
   private void updateTotalPreview() 
@@ -521,6 +471,9 @@ public class TransactionView extends BorderPane
     Alert alert = new Alert(type);
     alert.setTitle(title);
     alert.setHeaderText(null);
+    if (getScene() != null) {
+      alert.getDialogPane().getStylesheets().addAll(getScene().getStylesheets());
+    }
     alert.setContentText(content);
     alert.showAndWait();
   }

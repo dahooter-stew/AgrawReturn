@@ -26,52 +26,53 @@ public class LoginView extends VBox
 
     users.printUsers();
 
-    setSpacing(15);
-    setPadding(new Insets(30));
-    setAlignment(Pos.CENTER);
-    setMaxWidth(350);
+    setSpacing(12);
+    setPadding(new Insets(32));
+    setAlignment(Pos.CENTER_LEFT);
+    setMaxWidth(360);
+    getStyleClass().add("sheet-card");
 
-    Label titleLabel = new Label("System Login");
-    titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+    Label titleLabel = new Label("AgrawReturn() Login");
+    titleLabel.getStyleClass().add("page-title");
 
+    Label userLbl = new Label("Username:");
+    userLbl.getStyleClass().add("field-label");
     userField = new TextField();
     userField.setPromptText("Username");
 
+    Label passLbl = new Label("Password:");
+    passLbl.getStyleClass().add("field-label");
     passField = new PasswordField();
     passField.setPromptText("Password");
 
     errorLabel = new Label();
-    errorLabel.setStyle("-fx-text-fill: red;");
+    errorLabel.setStyle("-fx-text-fill: #9E3B33; -fx-font-weight: bold;");
 
-    // FOR DA DIFFERENT VIEWS
     Button btnManager = new Button("Login as Manager");
     btnManager.setMaxWidth(Double.MAX_VALUE);
-    btnManager.setStyle("-fx-background-color: #ff0000; -fx-text-fill: white;");
-    btnManager.setOnAction(e -> attemptLogin(true)); // im logging in as manager!
+    btnManager.getStyleClass().add("btn-forest");
+    btnManager.setOnAction(e -> attemptLogin(true));
 
     Button btnClerk = new Button("Login as Clerk");
     btnClerk.setMaxWidth(Double.MAX_VALUE);
-    btnClerk.setStyle("-fx-background-color: #00ff00; -fx-text-fill: white;");
-    btnClerk.setOnAction(e -> attemptLogin(false)); // im logging in as clerk!
+    btnClerk.getStyleClass().add("btn-olive-pill");
+    btnClerk.setOnAction(e -> attemptLogin(false));
 
-    // PUT ON SCREEN
-    getChildren().addAll(titleLabel, new Label("Username:"), userField, new Label("Password:"), passField, errorLabel, btnManager, btnClerk);
-
+    getChildren().addAll(titleLabel, userLbl, userField, passLbl, passField, errorLabel, btnManager, btnClerk);
   }
-  // login shenanigans help
-  private void attemptLogin(boolean asManager){
-    User user = users.login(userField.getText().trim(), passField.getText()); // see who matches!
+
+  private void attemptLogin(boolean asManager)
+  {
+    User user = users.login(userField.getText().trim(), passField.getText());
 
     if (user == null) {
       errorLabel.setText("Wrong username or password.");
       passField.clear();
-    }
-    else if (user.isManager() != asManager) {
+    } else if (user.isManager() != asManager) {
       errorLabel.setText("Wrong log-in for account type!");
       passField.clear();
-    }
-    else {
-      onLogin.accept(user); // OPEN MAIN VIEW
+    } else {
+      onLogin.accept(user);
     }
   }
 }

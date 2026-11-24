@@ -16,40 +16,47 @@ import backend.UserManager;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-
-public class DashboardView extends HBox{ 
-
+public class DashboardView extends VBox
+{
   public DashboardView(Inventory inventory, User user, UserManager users, TransactionManager transactionManager)
   {
-    setSpacing(15);
-    setPadding(new Insets(15));
+    getStyleClass().add("page-container");
 
-    // left column: stock card on top, transactions card below
-    VBox main = new VBox(15,
+    VBox shell = new VBox(16);
+    shell.getStyleClass().add("warm-shell");
+    VBox.setVgrow(shell, Priority.ALWAYS);
+
+    Label welcome = new Label("Welcome,\n" + user.getUsername() + "!");
+    welcome.getStyleClass().add("welcome-title");
+
+    HBox columns = new HBox(16);
+    VBox.setVgrow(columns, Priority.ALWAYS);
+
+    VBox main = new VBox(16,
       createStockCard(inventory),
-      createTransactionsCard(user.isManager(), StoreSystem.instance().transactionManager));   // only managers see profit
-    HBox.setHgrow(main, Priority.ALWAYS);          // main column takes the extra width
-    getChildren().add(main);
+      createTransactionsCard(user.isManager(), StoreSystem.instance().transactionManager)
+    );
+    HBox.setHgrow(main, Priority.ALWAYS);
+    columns.getChildren().add(main);
 
-    // adds a right column: clerk list, ONLY IF USER IS A MANAGER DOES THE CLERKS LIST SHOW
-    if (user.isManager())
-      getChildren().add(createClerksCard(users));
+    if (user.isManager()) {
+      columns.getChildren().add(createClerksCard(users));
+    }
+
+    shell.getChildren().addAll(welcome, columns);
+    getChildren().add(shell);
   }
 
-  // TABLE VIEW OF INVENTORY for viewing only
-  private VBox createStockCard(Inventory inventory){
+  private VBox createStockCard(Inventory inventory)
+  {
     TableView<Product> table = new TableView<>();
-    table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);  
-    table.setPlaceholder(new Label("No products in inventory.")); // DEFAULT EMPTY
+    table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    table.setPlaceholder(new Label("No products in inventory."));
     VBox.setVgrow(table, Priority.ALWAYS);
 
-    // each column pulls its value from the InventoryItem / its Product
-    // ReadOnly wrappers = cells can't be edited
     TableColumn<Product, String> nameCol = new TableColumn<>("Product");
     nameCol.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getName()));
 
@@ -64,33 +71,34 @@ public class DashboardView extends HBox{
 
     table.getColumns().addAll(nameCol, idCol, priceCol, stockCol);
 
-    // fill the table 
-    for (Product item : inventory.getItems())
+    for (Product item : inventory.getItems()) {
       table.getItems().add(item);
+    }
+
+    Label subtitle = new Label("Currently in stock!");
+    subtitle.getStyleClass().add("muted-label");
 
     VBox box = card("Inventory");
-    box.getChildren().addAll(new Label("Currently in stock!"), table);
+    box.getChildren().addAll(subtitle, table);
     return box;
   }
 
-  // NEWEST TRANSACTIONS 
   private VBox createTransactionsCard(boolean showProfit, TransactionManager transactionManager)
   {
-    // walk the history backwards so the newest ones come first
     List<Transaction> history = transactionManager.getHistoryList();
     List<Transaction> recent = new ArrayList<>();
-    for (int i = history.size() - 1; i >= 0 && recent.size() < 10; i--)
+    for (int i = history.size() - 1; i >= 0 && recent.size() < 10; i--) {
       recent.add(history.get(i));
+    }
 
     TableView<Transaction> table = new TableView<>();
     table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     table.setPlaceholder(new Label("No transactions yet."));
-    VBox.setVgrow(table, Priority.ALWAYS); 
+    VBox.setVgrow(table, Priority.ALWAYS);
 
     TableColumn<Transaction, String> typeCol = new TableColumn<>("Type");
     typeCol.setCellValueFactory(c -> {
       Transaction t = c.getValue();
-
       String type;
       if (t instanceof Sale)
         type = "Sale";
@@ -98,7 +106,6 @@ public class DashboardView extends HBox{
         type = "Purchase";
       else
         type = "Other";
-
       return new ReadOnlyStringWrapper(type);
     });
 
@@ -109,19 +116,22 @@ public class DashboardView extends HBox{
     table.getItems().addAll(recent);
 
     VBox box = card("Recent Transactions");
-    if (showProfit){   // net = sales minus purchases, managers only
-      box.getChildren().add(new Label(String.format("Net profit: Php %.2f", transactionManager.calculateProfit())));
+    if (showProfit) {
+      Label profit = new Label(String.format("Net profit: Php %.2f", transactionManager.calculateProfit()));
+      profit.getStyleClass().add("row-tag");
+      box.getChildren().add(profit);
     }
     box.getChildren().add(table);
     return box;
   }
 
-  // CLERKS BOX: only managers can see this, usernames of all clerks
   private VBox createClerksCard(UserManager users)
   {
     ListView<String> clerks = new ListView<>();
-    for (Clerk clerk : users.getClerks())
+    VBox.setVgrow(clerks, Priority.ALWAYS);
+    for (Clerk clerk : users.getClerks()) {
       clerks.getItems().add(clerk.getUsername());
+    }
 
     VBox box = card("Clerks");
     box.getChildren().add(clerks);
@@ -129,15 +139,14 @@ public class DashboardView extends HBox{
     return box;
   }
 
-  // each card adds its own contents after calling this
   private VBox card(String title)
   {
     Label t = new Label(title);
-    t.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+    t.getStyleClass().add("card-title");
 
     VBox box = new VBox(8, t);
-    box.setPadding(new Insets(15));
-    VBox.setVgrow(box, Priority.ALWAYS);   // cards share the column height
+    box.getStyleClass().add("sheet-card");
+    VBox.setVgrow(box, Priority.ALWAYS);
     return box;
   }
 }
