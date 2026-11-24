@@ -4,7 +4,7 @@ import backend.Inventory;
 import backend.Product;
 import backend.ProductManager;
 
-import javafx.application.Platform; // FIXEDHERE
+import javafx.application.Platform; 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -109,7 +109,7 @@ public class InventoryManagementView extends BorderPane
     minusStock.getStyleClass().add("stepper-btn");
     minusStock.setOnAction(e -> handleChangeStock(item, -1));
 
-    // QTY CAN BE TYPES AS A TEXT FIELD
+    // QTY CAN BE TYPED AS A TEXT FIELD LIKE IN SHOPPEE
     TextField qty = new TextField(String.valueOf(getQty(item)));
     qty.getStyleClass().add("stepper-qty");
     qty.setPrefWidth(60);
@@ -140,7 +140,7 @@ public class InventoryManagementView extends BorderPane
     }
   }
 
-  private void updateHeaderButton() {
+  private void updateHeaderButton() { // UPDATES THE LOOK DEPENDING ON IF MAY NACHECK
     addOrDeleteBtn.getStyleClass().removeAll("btn-olive-pill", "btn-danger-pill");
     if (checkedItems.isEmpty()) {
       addOrDeleteBtn.setText("ADD +");
@@ -151,15 +151,15 @@ public class InventoryManagementView extends BorderPane
     }
   }
 
-  // FIXEDHERE: goes through setStock(), which uses restockProduct/decreaseProduct correctly
-  private void handleChangeStock(Product item, int change) 
-  {
+  // handles changes in stock depending on edits and things
+  private void handleChangeStock(Product item, int change) {
     int newQty = getQty(item) + change;
-    if (newQty < 0)
+    if (newQty < 0){
       return;
-
-    if (!setStock(item, newQty))
+    }
+    if (!setStock(item, newQty)){
       showAlert(Alert.AlertType.ERROR, "Error", "Could not update the stock for this product.");
+    }
     refreshTable();
   }
 
@@ -168,16 +168,18 @@ public class InventoryManagementView extends BorderPane
 
   try {
     int newQty = Integer.parseInt(field.getText().trim());
-    if (newQty < 0)
-      throw new NumberFormatException();
+    if (newQty < 0){
+      throw new NumberFormatException(); // NO NEGATIVE QTY
+    }
     if (newQty == 0) {
       inventory.removeProduct(item);
       availability.remove(item.getId());
       refreshTable();
       return;
     }
-    if (newQty == current)
+    if (newQty == current){
       return;
+    }
     if (!setStock(item, newQty)) {
       field.setText(String.valueOf(current));
       showAlert(Alert.AlertType.ERROR, "Error", "Could not update the stock for this product.");
@@ -185,7 +187,7 @@ public class InventoryManagementView extends BorderPane
     }
     refreshTable();
   } catch (NumberFormatException ex) {
-    field.setText(String.valueOf(current)); // revert
+    field.setText(String.valueOf(current)); //GO BACK
     showAlert(Alert.AlertType.ERROR, "Input Error", "Stock must be a whole number of 0 or more.");
   }
 }
@@ -193,11 +195,12 @@ public class InventoryManagementView extends BorderPane
   private boolean setStock(Product item, int newQty){
     int diff = newQty - getQty(item);
 
-    if (diff > 0)
+    if (diff > 0){
       return inventory.restockProduct(item, diff);
-    if (diff < 0)
+    } else if (diff < 0){
       return inventory.decreaseProduct(item, -diff);
-    return true; // no change
+    }
+    return true; 
   }
 
   private void showAddDialog() { //ADD POPUP
@@ -215,10 +218,7 @@ public class InventoryManagementView extends BorderPane
 
     btnSearch.setOnAction(e -> {
       String text = nameField.getText().trim();
-      foundProduct = productManager.getProductByName(text); 
-      if (foundProduct == null){
-        foundProduct = productManager.getProductById(text); // ACCEPTS ID TOO
-      }
+      foundProduct = productManager.getProductByName(text); // THIS IS THE PRODUCT TO BE ADDED
 
       if (foundProduct == null) { // NO PRODUCT MATCH
         nameLabel.setText("Product Name: ...");
@@ -261,6 +261,7 @@ public class InventoryManagementView extends BorderPane
         return;
       }
     }
+
     try {
       int qty = Integer.parseInt(quantityField.getText().trim());
       if (qty < 0){
@@ -315,7 +316,7 @@ public class InventoryManagementView extends BorderPane
     try {
       item.setPrice(Double.parseDouble(priceField.getText().trim()));
 
-      // Unavailable/Unlisted products are no longer in inventory
+      // unavailable/unlisted products are no longer in inventory
       String status = getStatus(avaiBox);
       if (!status.equals("Available")) {
         inventory.removeProduct(item);
@@ -330,8 +331,7 @@ public class InventoryManagementView extends BorderPane
     }
   }
 
-  private void handleRestockProduct(Product item, TextField stockField, Label stockLabel) 
-  {
+  private void handleRestockProduct(Product item, TextField stockField, Label stockLabel) {
     try {
       int addQty = Integer.parseInt(stockField.getText().trim());
       if (addQty < 0) {

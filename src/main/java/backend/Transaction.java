@@ -7,10 +7,10 @@ public abstract class Transaction implements Serializable
 	
   Product product;
   String date;
-	int amount;
-	double price; 
+  int amount;
+  double price;
   User user;
-	
+		
 	public Transaction (Product product, int amount, String date, User user) {
 		this.product = product;
 		this.amount = amount;
