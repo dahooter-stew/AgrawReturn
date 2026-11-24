@@ -70,17 +70,17 @@ public class main
     StoreSystem.instance().transactionManager.processTransaction(new Sale(fertilizer, 2, "11-21-26", jabien));
     StoreSystem.instance().transactionManager.processTransaction(new Sale(biochar, 5, "11-22-26", aaron));
 
-    // ADD PURCHASES // WE SOURCE OUR BIOCHAR ELSE WHERE
+    // ADD PURCHASES (what this means is we purchase elsewhere to produce our products like biochar fertilizer so we document which purchases are made for wat products)
     StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 5, "11-08-26", phylan, "Los Baños Wet Market"));
     StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 10, "11-08-26", jabien, "AllyMango"));
-    StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 4, "11-09-26", jelen, "Kuya Jann's Fruit Stand"));
+    StoreSystem.instance().transactionManager.processTransaction(new Purchase(fertilizer, 4, "11-09-26", jelen, "Kuya Jann's Fruit Stand"));
     StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 15, "11-09-26", aaron, "Hootie Frutti"));
-    StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 5, "11-10-26", phylan, "Los Baños Wet Market"));
-    StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 2, "11-10-26", jabien, "Aiona's Orchard"));
-    StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 2, "11-10-26", conrad, "Hootie Frutti"));
+    StoreSystem.instance().transactionManager.processTransaction(new Purchase(fertilizer, 5, "11-10-26", phylan, "Los Baños Wet Market"));
+    StoreSystem.instance().transactionManager.processTransaction(new Purchase(repellent, 2, "11-10-26", jabien, "Aiona's Orchard"));
+    StoreSystem.instance().transactionManager.processTransaction(new Purchase(repellent, 2, "11-10-26", conrad, "Hootie Frutti"));
     StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 3, "11-11-26", jelen, "Fruit Trade Center"));
     StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 10, "11-11-26", aaron, "AllyMango"));
-    StoreSystem.instance().transactionManager.processTransaction(new Purchase(biochar, 3, "11-11-26", jabien, "Hootie Frutti"));
+    StoreSystem.instance().transactionManager.processTransaction(new Purchase(fertilizer, 3, "11-11-26", jabien, "Hootie Frutti"));
     StoreSystem.instance().transactionManager.printTransactions();
 
     try {

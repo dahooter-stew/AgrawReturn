@@ -2,6 +2,7 @@ package main;
 
 import backend.StoreSystem;
 import backend.User;
+import backend.UserManager;
 import frontend.LoginView;
 import frontend.MainView;
 import javafx.application.Application;

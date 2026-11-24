@@ -32,7 +32,7 @@ public class LoginView extends VBox
     setMaxWidth(360);
     getStyleClass().add("sheet-card");
 
-    Label titleLabel = new Label("AgrawReturn() Login");
+    Label titleLabel = new Label("AgrawReturn()");
     titleLabel.getStyleClass().add("page-title");
 
     Label userLbl = new Label("Username:");
@@ -47,6 +47,8 @@ public class LoginView extends VBox
 
     errorLabel = new Label();
     errorLabel.setStyle("-fx-text-fill: #9E3B33; -fx-font-weight: bold;");
+
+    // DIFFERENT ACTIONS DEPENDING ON WHO THE USER IS LOGGING IN AS
 
     Button btnManager = new Button("Login as Manager");
     btnManager.setMaxWidth(Double.MAX_VALUE);

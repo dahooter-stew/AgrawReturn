@@ -25,6 +25,10 @@ import javafx.util.StringConverter;
 import java.time.LocalDate;
 import java.util.List;
 
+
+// FEATURE 3: TRANSACTION VIEW ALLOWS THE MANAGERS & CLERKS TO SEE THE TRANSACTIONS MADE. 
+// NOTE: SALES & TRANSACTIONS ARE PLACED IN ONE VIEW
+
 public class TransactionView extends BorderPane 
 {
   // Attributes
@@ -270,10 +274,10 @@ public class TransactionView extends BorderPane
     productCardHeader.getStyleClass().add("field-label");
 
     idField = new TextField();
-    idField.setPromptText("2026-101");
+    idField.setPromptText("PROD-001");
 
     nameField = new TextField();
-    nameField.setPromptText("Rice");
+    nameField.setPromptText("Fertilizer");
 
     HBox idAndNameRow = new HBox(
       6,
@@ -284,7 +288,7 @@ public class TransactionView extends BorderPane
     HBox.setHgrow(idAndNameRow.getChildren().get(1), Priority.ALWAYS);
 
     descriptionField = new TextField();
-    descriptionField.setPromptText("e.g., 5kg sack");
+    descriptionField.setPromptText("e.g., 5kg");
     VBox descGroup = createLabeledField("Description", descriptionField);
 
     priceField = new TextField();
@@ -297,7 +301,7 @@ public class TransactionView extends BorderPane
     purchaseProductBox.setManaged(false);
 
     sourceField = new TextField();
-    sourceField.setPromptText("e.g., Fresh Farms");
+    sourceField.setPromptText("e.g., Wet Market");
     sourceBox = createLabeledField("Source", sourceField);
     sourceBox.setVisible(false);
     sourceBox.setManaged(false);

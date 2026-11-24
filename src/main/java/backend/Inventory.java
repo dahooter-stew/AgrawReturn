@@ -59,8 +59,7 @@ public class Inventory implements Serializable
 
   // removes only if in inventory, and is stored by 
   // product manager
-  public boolean removeProduct(Product product) 
-  {
+  public boolean removeProduct(Product product) {
     if (product == null || !items.containsKey(product) ||
         !product.equals(StoreSystem.instance().productManager.getProductById(product.getId())))
       return false;
